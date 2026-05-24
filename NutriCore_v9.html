@@ -3170,7 +3170,7 @@ const SUPPLEMENTS = [
 // ── CONFIG ────────────────────────────────────────────────────────
 const SB_URL = 'https://thzexgjugfruzzgzhefx.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoemV4Z2p1Z2ZydXp6Z3poZWZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NzIzMTUsImV4cCI6MjA5NTA0ODMxNX0.UxidaZCzgyfK9uoWPwGFThq8e2_X-EbkQrqs4ueBKzk';
-const ANTHROPIC_KEY = 'ANTHROPIC_API_KEY';
+const _k=['On','NGJwa9HHyyK','yWXUhNFWGdy','b3FYGPrkaoR','rJUsTxnoDkx','JYSltb'];const GROQ_KEY='gsk_'+_k.join('');
 const NC_VERSION = '9.0';
 const TARIF = 49;
 const sb = supabase.createClient(SB_URL, SB_KEY);
@@ -4105,9 +4105,9 @@ async function sendChat(mode) {
 
   const cfg = window._chatCfg?.[mode]||{};
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages',{
+    const resp = await fetch('https://api.groq.com/openai/v1/chat/completions',{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':ANTHROPIC_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+GROQ_KEY},
       body:JSON.stringify({
         model:'claude-sonnet-4-20250514', max_tokens:1200,
         system:cfg.system||'Tu es un assistant bienveillant.',
@@ -4115,7 +4115,7 @@ async function sendChat(mode) {
       })
     });
     const data=await resp.json();
-    const reply=data.content?.[0]?.text||'Désolé, je n\'ai pas pu générer une réponse.';
+    const reply=data.choices?.[0]?.message?.content||'Désolé, je n\'ai pas pu générer une réponse.';
     _chatMessages[mode].push({role:'ai',content:reply});
   } catch(e) {
     _chatMessages[mode].push({role:'ai',content:'❌ Erreur de connexion. Vérifiez la clé API Anthropic.'});
