@@ -3349,18 +3349,14 @@ function AuthScreen({onLogin}) {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
   const [success, setSuccess] = React.useState('');
-  const [step, setStep] = React.useState('form'); // form | pin
-  const [pin, setPin] = React.useState('');
-  const [pinSent, setPinSent] = React.useState('');
-  const [pinEmail, setPinEmail] = React.useState('');
 
   const erreurs = {
     'Invalid login credentials': 'Email ou mot de passe incorrect.',
-    'Email not confirmed': 'Veuillez confirmer votre email.',
     'User already registered': 'Un compte existe déjà avec cet email.',
     'Password should be at least 6 characters': 'Le mot de passe doit contenir au moins 6 caractères.',
     'email rate limit exceeded': 'Trop de tentatives. Attendez quelques minutes.',
     'For security purposes': 'Veuillez attendre quelques secondes avant de réessayer.',
+    'Database error': 'Erreur serveur. Réessayez dans quelques instants.',
   };
 
   function tradErr(msg) {
@@ -3370,13 +3366,9 @@ function AuthScreen({onLogin}) {
     return msg || 'Une erreur est survenue.';
   }
 
-  function genPin() {
-    return String(Math.floor(1000 + Math.random() * 9000));
-  }
-
   async function handleLogin(e) {
     e.preventDefault();
-    setError('');
+    setError(''); setSuccess('');
     if(!email||!password){setError('Email et mot de passe requis');return;}
     setLoading(true);
     try {
@@ -3390,52 +3382,36 @@ function AuthScreen({onLogin}) {
 
   async function handleRegister(e) {
     e.preventDefault();
-    setError('');
+    setError(''); setSuccess('');
     if(!email||!password||!prenom||!nom){setError('Tous les champs sont requis');return;}
     if(password.length < 6){setError('Le mot de passe doit contenir au moins 6 caractères');return;}
-    // Générer un PIN et passer à l'étape de vérification
-    const code = genPin();
-    setPinSent(code);
-    setPinEmail(email);
-    setStep('pin');
-    setSuccess(`Un code de vérification à 4 chiffres a été généré. Pour cette version bêta, votre code est : ${code}`);
-  }
-
-  async function handleVerifyPin(e) {
-    e.preventDefault();
-    setError('');
-    if(pin !== pinSent){setError('Code incorrect. Réessayez.');return;}
     setLoading(true);
     try {
+      // Inscription sans confirmation email
       const {data,error:err} = await sb.auth.signUp({
         email, password,
-        options:{
-          data:{nom,prenom},
-          emailRedirectTo: 'https://chaizelouis.github.io/NUTRICORE/NutriCore_v7.html'
-        }
+        options:{ data:{nom,prenom}, emailRedirectTo: undefined }
       });
       if(err) throw err;
       if(data.user) {
         await sb.from('therapists').update({nom,prenom}).eq('id',data.user.id);
+        // Connexion automatique
         const {data:loginData, error:loginErr} = await sb.auth.signInWithPassword({email,password});
         if(loginErr) throw loginErr;
         onLogin(loginData.user);
       }
     } catch(err) {
       setError(tradErr(err.message));
-      setStep('form');
     } finally { setLoading(false); }
   }
 
   async function handleForgotPassword() {
-    if(!email){setError('Entrez votre email pour réinitialiser le mot de passe');return;}
+    setError(''); setSuccess('');
+    if(!email){setError('Entrez votre email ci-dessus');return;}
     setLoading(true);
     try {
-      const {error:err} = await sb.auth.resetPasswordForEmail(email, {
-        redirectTo: 'https://chaizelouis.github.io/NUTRICORE/NutriCore_v7.html'
-      });
-      if(err) throw err;
-      setSuccess('Un email de réinitialisation a été envoyé. Vérifiez votre boîte mail.');
+      await sb.auth.resetPasswordForEmail(email);
+      setSuccess('Email de réinitialisation envoyé. Vérifiez votre boîte mail.');
     } catch(err) {
       setError(tradErr(err.message));
     } finally { setLoading(false); }
@@ -3447,77 +3423,54 @@ function AuthScreen({onLogin}) {
         React.createElement('div', {className:'auth-logo-icon'}, '🌿'),
         React.createElement('div', {className:'auth-logo-text'}, 'NutriCore')
       ),
-
-      step === 'pin'
-        ? React.createElement(React.Fragment, null,
-            React.createElement('div', {className:'auth-title'}, 'Vérification'),
-            React.createElement('div', {className:'auth-sub'}, `Entrez le code de vérification à 4 chiffres`),
-            error && React.createElement('div', {style:{background:'rgba(248,81,73,0.1)',border:'1px solid rgba(248,81,73,0.3)',borderRadius:'8px',padding:'.65rem .9rem',marginBottom:'1rem',fontSize:'.85rem',color:'#f85149'}}, error),
-            success && React.createElement('div', {style:{background:'rgba(63,182,139,0.1)',border:'1px solid rgba(63,182,139,0.3)',borderRadius:'8px',padding:'.65rem .9rem',marginBottom:'1rem',fontSize:'.85rem',color:'#3fb68b'}}, success),
-            React.createElement('form', {onSubmit:handleVerifyPin},
-              React.createElement('div', {className:'form-group'},
-                React.createElement('label', {className:'form-label'}, 'Code à 4 chiffres'),
-                React.createElement('input', {className:'form-input',style:{fontSize:'1.5rem',textAlign:'center',letterSpacing:'1rem'},maxLength:4,value:pin,onChange:e=>setPin(e.target.value),placeholder:'0000',autoFocus:true})
-              ),
-              React.createElement('button', {className:'btn btn-primary btn-lg btn-full',type:'submit',disabled:loading||pin.length!==4},
-                loading ? React.createElement('div', {className:'spinner',style:{width:18,height:18,borderColor:'rgba(0,0,0,0.3)',borderTopColor:'#000'}}) : null,
-                'Vérifier le code'
-              ),
-              React.createElement('button', {type:'button',style:{background:'none',border:'none',color:'var(--text2)',fontSize:'.85rem',marginTop:'.75rem',cursor:'pointer',width:'100%'},onClick:()=>{setStep('form');setError('');setSuccess('');}}, '← Retour')
+      React.createElement('div', {className:'auth-tabs'},
+        React.createElement('button', {className:`auth-tab ${tab==='login'?'active':''}`,onClick:()=>{setTab('login');setError('');setSuccess('');}}, 'Connexion'),
+        React.createElement('button', {className:`auth-tab ${tab==='register'?'active':''}`,onClick:()=>{setTab('register');setError('');setSuccess('');}}, 'Créer un compte')
+      ),
+      error && React.createElement('div', {style:{background:'rgba(248,81,73,0.1)',border:'1px solid rgba(248,81,73,0.3)',borderRadius:'8px',padding:'.65rem .9rem',marginBottom:'1rem',fontSize:'.85rem',color:'#f85149'}}, error),
+      success && React.createElement('div', {style:{background:'rgba(63,182,139,0.1)',border:'1px solid rgba(63,182,139,0.3)',borderRadius:'8px',padding:'.65rem .9rem',marginBottom:'1rem',fontSize:'.85rem',color:'#3fb68b'}}, success),
+      tab==='login'
+        ? React.createElement('form', {onSubmit:handleLogin},
+            React.createElement('div', {className:'form-group'},
+              React.createElement('label', {className:'form-label'}, 'Email professionnel'),
+              React.createElement('input', {className:'form-input',type:'email',value:email,onChange:e=>setEmail(e.target.value),placeholder:'vous@cabinet.com'})
+            ),
+            React.createElement('div', {className:'form-group'},
+              React.createElement('label', {className:'form-label'}, 'Mot de passe'),
+              React.createElement('input', {className:'form-input',type:'password',value:password,onChange:e=>setPassword(e.target.value),placeholder:'••••••••'})
+            ),
+            React.createElement('button', {className:'btn btn-primary btn-lg btn-full',type:'submit',disabled:loading},
+              loading ? React.createElement('div', {className:'spinner',style:{width:18,height:18,borderColor:'rgba(0,0,0,0.3)',borderTopColor:'#000'}}) : null,
+              'Se connecter'
+            ),
+            React.createElement('button', {type:'button',style:{background:'none',border:'none',color:'var(--text2)',fontSize:'.82rem',marginTop:'.75rem',cursor:'pointer',width:'100%',textDecoration:'underline'},onClick:handleForgotPassword},
+              'Mot de passe oublié ?'
             )
           )
-        : React.createElement(React.Fragment, null,
-            React.createElement('div', {className:'auth-tabs'},
-              React.createElement('button', {className:`auth-tab ${tab==='login'?'active':''}`,onClick:()=>{setTab('login');setError('');setSuccess('');}}, 'Connexion'),
-              React.createElement('button', {className:`auth-tab ${tab==='register'?'active':''}`,onClick:()=>{setTab('register');setError('');setSuccess('');}}, 'Créer un compte')
+        : React.createElement('form', {onSubmit:handleRegister},
+            React.createElement('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'.75rem',marginBottom:'1rem'}},
+              React.createElement('div', {className:'form-group',style:{marginBottom:0}},
+                React.createElement('label', {className:'form-label'}, 'Prénom'),
+                React.createElement('input', {className:'form-input',value:prenom,onChange:e=>setPrenom(e.target.value),placeholder:'Amandine'})
+              ),
+              React.createElement('div', {className:'form-group',style:{marginBottom:0}},
+                React.createElement('label', {className:'form-label'}, 'Nom'),
+                React.createElement('input', {className:'form-input',value:nom,onChange:e=>setNom(e.target.value),placeholder:'Martin'})
+              )
             ),
-            error && React.createElement('div', {style:{background:'rgba(248,81,73,0.1)',border:'1px solid rgba(248,81,73,0.3)',borderRadius:'8px',padding:'.65rem .9rem',marginBottom:'1rem',fontSize:'.85rem',color:'#f85149'}}, error),
-            success && React.createElement('div', {style:{background:'rgba(63,182,139,0.1)',border:'1px solid rgba(63,182,139,0.3)',borderRadius:'8px',padding:'.65rem .9rem',marginBottom:'1rem',fontSize:'.85rem',color:'#3fb68b'}}, success),
-
-            tab==='login'
-              ? React.createElement('form', {onSubmit:handleLogin},
-                  React.createElement('div', {className:'form-group'},
-                    React.createElement('label', {className:'form-label'}, 'Email professionnel'),
-                    React.createElement('input', {className:'form-input',type:'email',value:email,onChange:e=>setEmail(e.target.value),placeholder:'vous@cabinet.com'})
-                  ),
-                  React.createElement('div', {className:'form-group'},
-                    React.createElement('label', {className:'form-label'}, 'Mot de passe'),
-                    React.createElement('input', {className:'form-input',type:'password',value:password,onChange:e=>setPassword(e.target.value),placeholder:'••••••••'})
-                  ),
-                  React.createElement('button', {className:'btn btn-primary btn-lg btn-full',type:'submit',disabled:loading},
-                    loading ? React.createElement('div', {className:'spinner',style:{width:18,height:18,borderColor:'rgba(0,0,0,0.3)',borderTopColor:'#000'}}) : null,
-                    'Se connecter'
-                  ),
-                  React.createElement('button', {type:'button',style:{background:'none',border:'none',color:'var(--text2)',fontSize:'.82rem',marginTop:'.75rem',cursor:'pointer',width:'100%',textDecoration:'underline'},onClick:handleForgotPassword},
-                    'Mot de passe oublié ?'
-                  )
-                )
-              : React.createElement('form', {onSubmit:handleRegister},
-                  React.createElement('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'.75rem',marginBottom:'1rem'}},
-                    React.createElement('div', {className:'form-group',style:{marginBottom:0}},
-                      React.createElement('label', {className:'form-label'}, 'Prénom'),
-                      React.createElement('input', {className:'form-input',value:prenom,onChange:e=>setPrenom(e.target.value),placeholder:'Amandine'})
-                    ),
-                    React.createElement('div', {className:'form-group',style:{marginBottom:0}},
-                      React.createElement('label', {className:'form-label'}, 'Nom'),
-                      React.createElement('input', {className:'form-input',value:nom,onChange:e=>setNom(e.target.value),placeholder:'Martin'})
-                    )
-                  ),
-                  React.createElement('div', {className:'form-group'},
-                    React.createElement('label', {className:'form-label'}, 'Email professionnel'),
-                    React.createElement('input', {className:'form-input',type:'email',value:email,onChange:e=>setEmail(e.target.value),placeholder:'vous@cabinet.com'})
-                  ),
-                  React.createElement('div', {className:'form-group'},
-                    React.createElement('label', {className:'form-label'}, 'Mot de passe (6 caractères minimum)'),
-                    React.createElement('input', {className:'form-input',type:'password',value:password,onChange:e=>setPassword(e.target.value),placeholder:'••••••••'})
-                  ),
-                  React.createElement('button', {className:'btn btn-primary btn-lg btn-full',type:'submit',disabled:loading},
-                    loading ? React.createElement('div', {className:'spinner',style:{width:18,height:18,borderColor:'rgba(0,0,0,0.3)',borderTopColor:'#000'}}) : null,
-                    'Créer mon compte'
-                  )
-                )
+            React.createElement('div', {className:'form-group'},
+              React.createElement('label', {className:'form-label'}, 'Email professionnel'),
+              React.createElement('input', {className:'form-input',type:'email',value:email,onChange:e=>setEmail(e.target.value),placeholder:'vous@cabinet.com'})
+            ),
+            React.createElement('div', {className:'form-group'},
+              React.createElement('label', {className:'form-label'}, 'Mot de passe (6 caractères minimum)'),
+              React.createElement('input', {className:'form-input',type:'password',value:password,onChange:e=>setPassword(e.target.value),placeholder:'••••••••'})
+            ),
+            React.createElement('button', {className:'btn btn-primary btn-lg btn-full',type:'submit',disabled:loading},
+              loading ? React.createElement('div', {className:'spinner',style:{width:18,height:18,borderColor:'rgba(0,0,0,0.3)',borderTopColor:'#000'}}) : null,
+              'Créer mon compte'
+            )
           ),
-
       React.createElement('div', {style:{marginTop:'1.5rem',textAlign:'center',fontSize:'.8rem',color:'var(--text3)'}},
         '🔒 Données hébergées en Europe · RGPD conforme'
       )
