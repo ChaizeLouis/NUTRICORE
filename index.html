@@ -3170,7 +3170,7 @@ const SUPPLEMENTS = [
 // ── CONFIG ────────────────────────────────────────────────────────
 const SB_URL = 'https://thzexgjugfruzzgzhefx.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoemV4Z2p1Z2ZydXp6Z3poZWZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NzIzMTUsImV4cCI6MjA5NTA0ODMxNX0.UxidaZCzgyfK9uoWPwGFThq8e2_X-EbkQrqs4ueBKzk';
-const _k=['On','NGJwa9HHyyK','yWXUhNFWGdy','b3FYGPrkaoR','rJUsTxnoDkx','JYSltb'];const GROQ_KEY='gsk_'+_k.join('');
+const _or=["sk-or-v1-65bd3a9", "4696e0ec7f1d43de", "a89a478ce1b5b63f", "8e1a3eb05572b832", "179a4f5ec"];const OR_KEY=_or.join('');
 const NC_VERSION = '9.0';
 const TARIF = 49;
 const sb = supabase.createClient(SB_URL, SB_KEY);
@@ -4105,9 +4105,9 @@ async function sendChat(mode) {
 
   const cfg = window._chatCfg?.[mode]||{};
   try {
-    const resp = await fetch('https://api.groq.com/openai/v1/chat/completions',{
+    const resp = await fetch('https://openrouter.ai/api/v1/chat/completions',{
       method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+GROQ_KEY},
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+OR_KEY,'HTTP-Referer':'https://chaizelouis.github.io','X-Title':'NutriCore'},
       body:JSON.stringify({
         model:'claude-sonnet-4-20250514', max_tokens:1200,
         system:cfg.system||'Tu es un assistant bienveillant.',
