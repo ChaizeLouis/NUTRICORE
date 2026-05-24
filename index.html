@@ -3349,32 +3349,95 @@ function AuthScreen({onLogin}) {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
   const [success, setSuccess] = React.useState('');
+  const [step, setStep] = React.useState('form'); // form | pin
+  const [pin, setPin] = React.useState('');
+  const [pinSent, setPinSent] = React.useState('');
+  const [pinEmail, setPinEmail] = React.useState('');
 
-  async function handleSubmit(e) {
+  const erreurs = {
+    'Invalid login credentials': 'Email ou mot de passe incorrect.',
+    'Email not confirmed': 'Veuillez confirmer votre email.',
+    'User already registered': 'Un compte existe déjà avec cet email.',
+    'Password should be at least 6 characters': 'Le mot de passe doit contenir au moins 6 caractères.',
+    'email rate limit exceeded': 'Trop de tentatives. Attendez quelques minutes.',
+    'For security purposes': 'Veuillez attendre quelques secondes avant de réessayer.',
+  };
+
+  function tradErr(msg) {
+    for(const [k,v] of Object.entries(erreurs)) {
+      if(msg && msg.includes(k)) return v;
+    }
+    return msg || 'Une erreur est survenue.';
+  }
+
+  function genPin() {
+    return String(Math.floor(1000 + Math.random() * 9000));
+  }
+
+  async function handleLogin(e) {
     e.preventDefault();
-    setError(''); setSuccess('');
+    setError('');
     if(!email||!password){setError('Email et mot de passe requis');return;}
     setLoading(true);
     try {
-      if(tab==='login'){
-        const {data,error:err} = await sb.auth.signInWithPassword({email,password});
-        if(err) throw err;
-        onLogin(data.user);
-      } else {
-        const {data,error:err} = await sb.auth.signUp({
-          email, password,
-          options:{data:{nom,prenom}}
-        });
-        if(err) throw err;
-        if(data.user) {
-          // Mettre à jour le profil
-          await sb.from('therapists').update({nom,prenom}).eq('id',data.user.id);
-          setSuccess('Compte créé ! Vous pouvez vous connecter.');
-          setTab('login');
+      const {data,error:err} = await sb.auth.signInWithPassword({email,password});
+      if(err) throw err;
+      onLogin(data.user);
+    } catch(err) {
+      setError(tradErr(err.message));
+    } finally { setLoading(false); }
+  }
+
+  async function handleRegister(e) {
+    e.preventDefault();
+    setError('');
+    if(!email||!password||!prenom||!nom){setError('Tous les champs sont requis');return;}
+    if(password.length < 6){setError('Le mot de passe doit contenir au moins 6 caractères');return;}
+    // Générer un PIN et passer à l'étape de vérification
+    const code = genPin();
+    setPinSent(code);
+    setPinEmail(email);
+    setStep('pin');
+    setSuccess(`Un code de vérification à 4 chiffres a été généré. Pour cette version bêta, votre code est : ${code}`);
+  }
+
+  async function handleVerifyPin(e) {
+    e.preventDefault();
+    setError('');
+    if(pin !== pinSent){setError('Code incorrect. Réessayez.');return;}
+    setLoading(true);
+    try {
+      const {data,error:err} = await sb.auth.signUp({
+        email, password,
+        options:{
+          data:{nom,prenom},
+          emailRedirectTo: 'https://chaizelouis.github.io/NUTRICORE/NutriCore_v7.html'
         }
+      });
+      if(err) throw err;
+      if(data.user) {
+        await sb.from('therapists').update({nom,prenom}).eq('id',data.user.id);
+        const {data:loginData, error:loginErr} = await sb.auth.signInWithPassword({email,password});
+        if(loginErr) throw loginErr;
+        onLogin(loginData.user);
       }
     } catch(err) {
-      setError(err.message==='Invalid login credentials'?'Email ou mot de passe incorrect':err.message);
+      setError(tradErr(err.message));
+      setStep('form');
+    } finally { setLoading(false); }
+  }
+
+  async function handleForgotPassword() {
+    if(!email){setError('Entrez votre email pour réinitialiser le mot de passe');return;}
+    setLoading(true);
+    try {
+      const {error:err} = await sb.auth.resetPasswordForEmail(email, {
+        redirectTo: 'https://chaizelouis.github.io/NUTRICORE/NutriCore_v7.html'
+      });
+      if(err) throw err;
+      setSuccess('Un email de réinitialisation a été envoyé. Vérifiez votre boîte mail.');
+    } catch(err) {
+      setError(tradErr(err.message));
     } finally { setLoading(false); }
   }
 
@@ -3384,771 +3447,79 @@ function AuthScreen({onLogin}) {
         React.createElement('div', {className:'auth-logo-icon'}, '🌿'),
         React.createElement('div', {className:'auth-logo-text'}, 'NutriCore')
       ),
-      React.createElement('div', {className:'auth-tabs'},
-        React.createElement('button', {className:`auth-tab ${tab==='login'?'active':''}`,onClick:()=>setTab('login')}, 'Connexion'),
-        React.createElement('button', {className:`auth-tab ${tab==='register'?'active':''}`,onClick:()=>setTab('register')}, 'Créer un compte')
-      ),
-      error && React.createElement('div', {style:{background:'rgba(248,81,73,0.1)',border:'1px solid rgba(248,81,73,0.3)',borderRadius:'8px',padding:'.65rem .9rem',marginBottom:'1rem',fontSize:'.85rem',color:'#f85149'}}, error),
-      success && React.createElement('div', {style:{background:'rgba(63,182,139,0.1)',border:'1px solid rgba(63,182,139,0.3)',borderRadius:'8px',padding:'.65rem .9rem',marginBottom:'1rem',fontSize:'.85rem',color:'#3fb68b'}}, success),
-      React.createElement('form', {onSubmit:handleSubmit},
-        tab==='register' && React.createElement('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'.75rem',marginBottom:'1rem'}},
-          React.createElement('div', {className:'form-group',style:{marginBottom:0}},
-            React.createElement('label', {className:'form-label'}, 'Prénom'),
-            React.createElement('input', {className:'form-input',value:prenom,onChange:e=>setPrenom(e.target.value),placeholder:'Amandine'})
-          ),
-          React.createElement('div', {className:'form-group',style:{marginBottom:0}},
-            React.createElement('label', {className:'form-label'}, 'Nom'),
-            React.createElement('input', {className:'form-input',value:nom,onChange:e=>setNom(e.target.value),placeholder:'Martin'})
+
+      step === 'pin'
+        ? React.createElement(React.Fragment, null,
+            React.createElement('div', {className:'auth-title'}, 'Vérification'),
+            React.createElement('div', {className:'auth-sub'}, `Entrez le code de vérification à 4 chiffres`),
+            error && React.createElement('div', {style:{background:'rgba(248,81,73,0.1)',border:'1px solid rgba(248,81,73,0.3)',borderRadius:'8px',padding:'.65rem .9rem',marginBottom:'1rem',fontSize:'.85rem',color:'#f85149'}}, error),
+            success && React.createElement('div', {style:{background:'rgba(63,182,139,0.1)',border:'1px solid rgba(63,182,139,0.3)',borderRadius:'8px',padding:'.65rem .9rem',marginBottom:'1rem',fontSize:'.85rem',color:'#3fb68b'}}, success),
+            React.createElement('form', {onSubmit:handleVerifyPin},
+              React.createElement('div', {className:'form-group'},
+                React.createElement('label', {className:'form-label'}, 'Code à 4 chiffres'),
+                React.createElement('input', {className:'form-input',style:{fontSize:'1.5rem',textAlign:'center',letterSpacing:'1rem'},maxLength:4,value:pin,onChange:e=>setPin(e.target.value),placeholder:'0000',autoFocus:true})
+              ),
+              React.createElement('button', {className:'btn btn-primary btn-lg btn-full',type:'submit',disabled:loading||pin.length!==4},
+                loading ? React.createElement('div', {className:'spinner',style:{width:18,height:18,borderColor:'rgba(0,0,0,0.3)',borderTopColor:'#000'}}) : null,
+                'Vérifier le code'
+              ),
+              React.createElement('button', {type:'button',style:{background:'none',border:'none',color:'var(--text2)',fontSize:'.85rem',marginTop:'.75rem',cursor:'pointer',width:'100%'},onClick:()=>{setStep('form');setError('');setSuccess('');}}, '← Retour')
+            )
           )
-        ),
-        React.createElement('div', {className:'form-group'},
-          React.createElement('label', {className:'form-label'}, 'Email professionnel'),
-          React.createElement('input', {className:'form-input',type:'email',value:email,onChange:e=>setEmail(e.target.value),placeholder:'vous@cabinet.com'})
-        ),
-        React.createElement('div', {className:'form-group'},
-          React.createElement('label', {className:'form-label'}, 'Mot de passe'),
-          React.createElement('input', {className:'form-input',type:'password',value:password,onChange:e=>setPassword(e.target.value),placeholder:'••••••••'})
-        ),
-        React.createElement('button', {className:'btn btn-primary btn-lg btn-full',type:'submit',disabled:loading},
-          loading ? React.createElement('div', {className:'spinner',style:{width:18,height:18,borderColor:'rgba(0,0,0,0.3)',borderTopColor:'#000'}}) : null,
-          tab==='login' ? 'Se connecter' : 'Créer mon compte'
-        )
-      ),
+        : React.createElement(React.Fragment, null,
+            React.createElement('div', {className:'auth-tabs'},
+              React.createElement('button', {className:`auth-tab ${tab==='login'?'active':''}`,onClick:()=>{setTab('login');setError('');setSuccess('');}}, 'Connexion'),
+              React.createElement('button', {className:`auth-tab ${tab==='register'?'active':''}`,onClick:()=>{setTab('register');setError('');setSuccess('');}}, 'Créer un compte')
+            ),
+            error && React.createElement('div', {style:{background:'rgba(248,81,73,0.1)',border:'1px solid rgba(248,81,73,0.3)',borderRadius:'8px',padding:'.65rem .9rem',marginBottom:'1rem',fontSize:'.85rem',color:'#f85149'}}, error),
+            success && React.createElement('div', {style:{background:'rgba(63,182,139,0.1)',border:'1px solid rgba(63,182,139,0.3)',borderRadius:'8px',padding:'.65rem .9rem',marginBottom:'1rem',fontSize:'.85rem',color:'#3fb68b'}}, success),
+
+            tab==='login'
+              ? React.createElement('form', {onSubmit:handleLogin},
+                  React.createElement('div', {className:'form-group'},
+                    React.createElement('label', {className:'form-label'}, 'Email professionnel'),
+                    React.createElement('input', {className:'form-input',type:'email',value:email,onChange:e=>setEmail(e.target.value),placeholder:'vous@cabinet.com'})
+                  ),
+                  React.createElement('div', {className:'form-group'},
+                    React.createElement('label', {className:'form-label'}, 'Mot de passe'),
+                    React.createElement('input', {className:'form-input',type:'password',value:password,onChange:e=>setPassword(e.target.value),placeholder:'••••••••'})
+                  ),
+                  React.createElement('button', {className:'btn btn-primary btn-lg btn-full',type:'submit',disabled:loading},
+                    loading ? React.createElement('div', {className:'spinner',style:{width:18,height:18,borderColor:'rgba(0,0,0,0.3)',borderTopColor:'#000'}}) : null,
+                    'Se connecter'
+                  ),
+                  React.createElement('button', {type:'button',style:{background:'none',border:'none',color:'var(--text2)',fontSize:'.82rem',marginTop:'.75rem',cursor:'pointer',width:'100%',textDecoration:'underline'},onClick:handleForgotPassword},
+                    'Mot de passe oublié ?'
+                  )
+                )
+              : React.createElement('form', {onSubmit:handleRegister},
+                  React.createElement('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'.75rem',marginBottom:'1rem'}},
+                    React.createElement('div', {className:'form-group',style:{marginBottom:0}},
+                      React.createElement('label', {className:'form-label'}, 'Prénom'),
+                      React.createElement('input', {className:'form-input',value:prenom,onChange:e=>setPrenom(e.target.value),placeholder:'Amandine'})
+                    ),
+                    React.createElement('div', {className:'form-group',style:{marginBottom:0}},
+                      React.createElement('label', {className:'form-label'}, 'Nom'),
+                      React.createElement('input', {className:'form-input',value:nom,onChange:e=>setNom(e.target.value),placeholder:'Martin'})
+                    )
+                  ),
+                  React.createElement('div', {className:'form-group'},
+                    React.createElement('label', {className:'form-label'}, 'Email professionnel'),
+                    React.createElement('input', {className:'form-input',type:'email',value:email,onChange:e=>setEmail(e.target.value),placeholder:'vous@cabinet.com'})
+                  ),
+                  React.createElement('div', {className:'form-group'},
+                    React.createElement('label', {className:'form-label'}, 'Mot de passe (6 caractères minimum)'),
+                    React.createElement('input', {className:'form-input',type:'password',value:password,onChange:e=>setPassword(e.target.value),placeholder:'••••••••'})
+                  ),
+                  React.createElement('button', {className:'btn btn-primary btn-lg btn-full',type:'submit',disabled:loading},
+                    loading ? React.createElement('div', {className:'spinner',style:{width:18,height:18,borderColor:'rgba(0,0,0,0.3)',borderTopColor:'#000'}}) : null,
+                    'Créer mon compte'
+                  )
+                )
+          ),
+
       React.createElement('div', {style:{marginTop:'1.5rem',textAlign:'center',fontSize:'.8rem',color:'var(--text3)'}},
         '🔒 Données hébergées en Europe · RGPD conforme'
-      )
-    )
-  );
-}
-
-
-// ── DASHBOARD ─────────────────────────────────────────────────────
-function Dashboard({therapist, patients, consultations, onNav, addToast}) {
-  const today = new Date();
-  const fmtDate = d => d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  const recentConsults = [...consultations].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,5);
-
-  const stats = [
-    {label:'Patients suivis', value:patients.length, sub:'Total actifs', icon:'👥'},
-    {label:'Consultations', value:consultations.length, sub:'Ce mois', icon:'📋'},
-    {label:'Protocoles actifs', value:Math.max(0,consultations.filter(c=>c.protocole?.length>0).length), sub:'En cours', icon:'💊'},
-    {label:'Abonnement', value:`${TARIF_MENSUEL} CHF`, sub:'Par mois', icon:'💳'},
-  ];
-
-  return React.createElement('div', null,
-    React.createElement('div', {className:'page-header'},
-      React.createElement('div', null,
-        React.createElement('div', {className:'page-title'}, `Bonjour ${therapist?.prenom||therapist?.email?.split('@')[0]||''} 👋`),
-        React.createElement('div', {className:'page-sub'}, fmtDate(today))
-      ),
-      React.createElement('button', {className:'btn btn-primary', onClick:()=>onNav('patients')},
-        React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.plus}}), ' Nouveau patient'
-      )
-    ),
-    React.createElement('div', {className:'grid-4', style:{marginBottom:'1.5rem'}},
-      stats.map((s,i) => React.createElement('div', {key:i, className:'stat-card'},
-        React.createElement('div', {className:'stat-icon'}, s.icon),
-        React.createElement('div', {className:'stat-label'}, s.label),
-        React.createElement('div', {className:'stat-value'}, s.value),
-        React.createElement('div', {className:'stat-sub'}, s.sub)
-      ))
-    ),
-    React.createElement('div', {className:'grid-2'},
-      React.createElement('div', {className:'card'},
-        React.createElement('div', {className:'card-title'}, '🕐 Consultations récentes'),
-        recentConsults.length===0
-          ? React.createElement(Empty, {icon:'📋',title:'Aucune consultation',sub:'Commencez par ajouter un patient'})
-          : React.createElement('div', null,
-              recentConsults.map(c => React.createElement('div', {key:c.id, style:{padding:'.6rem 0',borderBottom:'1px solid var(--border2)'}},
-                React.createElement('div', {style:{fontSize:'.875rem',fontWeight:500}}, c.titre||'Consultation'),
-                React.createElement('div', {style:{fontSize:'.75rem',color:'var(--text2)'}},
-                  patients.find(p=>p.id===c.patient_id)?.prenom+' '+patients.find(p=>p.id===c.patient_id)?.nom || 'Patient',
-                  ' · ', new Date(c.created_at).toLocaleDateString('fr-FR')
-                )
-              ))
-            )
-      ),
-      React.createElement('div', {className:'card'},
-        React.createElement('div', {className:'card-title'}, '📚 Accès rapide'),
-        React.createElement('div', {style:{display:'flex',flexDirection:'column',gap:'.5rem'}},
-          [{label:'Base de données suppléments',icon:'💊',view:'supplements'},
-           {label:'Nouvelle consultation',icon:'📋',view:'consultations'},
-           {label:'Agenda',icon:'📅',view:'agenda'},
-           {label:'ARIA / Nova — Assistant IA',icon:'🤖',view:'aria'}].map(item =>
-            React.createElement('button', {key:item.view, className:'btn btn-secondary', style:{justifyContent:'flex-start'}, onClick:()=>onNav(item.view)},
-              item.icon, ' ', item.label
-            )
-          )
-        )
-      )
-    )
-  );
-}
-
-// ── PATIENTS ───────────────────────────────────────────────────────
-function Patients({therapist, patients, setPatients, addToast}) {
-  const [search, setSearch] = React.useState('');
-  const [showModal, setShowModal] = React.useState(false);
-  const [editPatient, setEditPatient] = React.useState(null);
-  const [form, setForm] = React.useState({nom:'',prenom:'',email:'',telephone:'',date_naissance:'',sexe:'',profil:'general',notes:''});
-  const [saving, setSaving] = React.useState(false);
-
-  const filtered = patients.filter(p =>
-    `${p.nom} ${p.prenom} ${p.email}`.toLowerCase().includes(search.toLowerCase())
-  );
-
-  function openNew() { setEditPatient(null); setForm({nom:'',prenom:'',email:'',telephone:'',date_naissance:'',sexe:'',profil:'general',notes:''}); setShowModal(true); }
-  function openEdit(p) { setEditPatient(p); setForm({nom:p.nom,prenom:p.prenom,email:p.email||'',telephone:p.telephone||'',date_naissance:p.date_naissance||'',sexe:p.sexe||'',profil:p.profil||'general',notes:p.notes||''}); setShowModal(true); }
-
-  async function save() {
-    if(!form.nom||!form.prenom){addToast('Nom et prénom requis','error');return;}
-    setSaving(true);
-    try {
-      if(editPatient) {
-        const {error} = await sb.from('patients').update({...form,updated_at:new Date().toISOString()}).eq('id',editPatient.id);
-        if(error) throw error;
-        setPatients(ps=>ps.map(p=>p.id===editPatient.id?{...p,...form}:p));
-        addToast('Patient modifié','success');
-      } else {
-        const {data,error} = await sb.from('patients').insert([{...form,therapist_id:therapist.id}]).select().single();
-        if(error) throw error;
-        setPatients(ps=>[data,...ps]);
-        addToast('Patient ajouté','success');
-      }
-      setShowModal(false);
-    } catch(e){addToast(e.message,'error');}
-    finally{setSaving(false);}
-  }
-
-  async function deletePatient(p) {
-    if(!confirm(`Supprimer ${p.prenom} ${p.nom} ?`)) return;
-    const {error} = await sb.from('patients').delete().eq('id',p.id);
-    if(!error){ setPatients(ps=>ps.filter(x=>x.id!==p.id)); addToast('Patient supprimé','success'); }
-  }
-
-  const profils = ['general','sportif','femme_enceinte','seniorite','pediatrie','vegetarien','vegane'];
-  const sexes = ['','Femme','Homme','Non précisé'];
-
-  return React.createElement('div', null,
-    React.createElement('div', {className:'page-header'},
-      React.createElement('div', null,
-        React.createElement('div', {className:'page-title'}, 'Patients'),
-        React.createElement('div', {className:'page-sub'}, `${patients.length} patient${patients.length>1?'s':''} suivi${patients.length>1?'s':''}`)
-      ),
-      React.createElement('button', {className:'btn btn-primary', onClick:openNew},
-        React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.plus}}), ' Nouveau patient'
-      )
-    ),
-    React.createElement('div', {className:'search-bar'},
-      React.createElement('div', {className:'search-input-wrap'},
-        React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.search}}),
-        React.createElement('input', {className:'form-input',placeholder:'Rechercher un patient…',value:search,onChange:e=>setSearch(e.target.value)})
-      )
-    ),
-    filtered.length===0
-      ? React.createElement(Empty, {icon:'👥',title:'Aucun patient',sub:'Ajoutez votre premier patient',
-          action:React.createElement('button',{className:'btn btn-primary',onClick:openNew},React.createElement('span',{dangerouslySetInnerHTML:{__html:icons.plus}}),' Nouveau patient')})
-      : React.createElement('div', {className:'card', style:{padding:'.5rem'}},
-          filtered.map(p => React.createElement('div', {key:p.id, className:'patient-row'},
-            React.createElement('div', {className:'patient-avatar'}, (p.prenom?.[0]||'')+(p.nom?.[0]||'')),
-            React.createElement('div', {className:'patient-info'},
-              React.createElement('div', {className:'patient-name'}, `${p.prenom} ${p.nom}`),
-              React.createElement('div', {className:'patient-meta'},
-                [p.email,p.telephone,p.profil].filter(Boolean).join(' · ')
-              )
-            ),
-            React.createElement('div', {style:{display:'flex',gap:'.5rem'}},
-              React.createElement('button', {className:'btn btn-secondary btn-sm', onClick:()=>openEdit(p)},
-                React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.edit}})
-              ),
-              React.createElement('button', {className:'btn btn-danger btn-sm', onClick:()=>deletePatient(p)},
-                React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.trash}})
-              )
-            )
-          ))
-        ),
-    React.createElement(Modal, {show:showModal, onClose:()=>setShowModal(false), title:editPatient?'Modifier le patient':'Nouveau patient',
-      footer:React.createElement(React.Fragment,null,
-        React.createElement('button',{className:'btn btn-secondary',onClick:()=>setShowModal(false)},'Annuler'),
-        React.createElement('button',{className:'btn btn-primary',onClick:save,disabled:saving},saving?'Enregistrement…':'Enregistrer')
-      )},
-      React.createElement('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'.75rem'}},
-        React.createElement('div', {className:'form-group'},
-          React.createElement('label', {className:'form-label'}, 'Prénom *'),
-          React.createElement('input', {className:'form-input',value:form.prenom,onChange:e=>setForm(f=>({...f,prenom:e.target.value})),placeholder:'Prénom'})
-        ),
-        React.createElement('div', {className:'form-group'},
-          React.createElement('label', {className:'form-label'}, 'Nom *'),
-          React.createElement('input', {className:'form-input',value:form.nom,onChange:e=>setForm(f=>({...f,nom:e.target.value})),placeholder:'Nom'}),
-        ),
-        React.createElement('div', {className:'form-group'},
-          React.createElement('label', {className:'form-label'}, 'Email'),
-          React.createElement('input', {className:'form-input',type:'email',value:form.email,onChange:e=>setForm(f=>({...f,email:e.target.value})),placeholder:'email@exemple.com'})
-        ),
-        React.createElement('div', {className:'form-group'},
-          React.createElement('label', {className:'form-label'}, 'Téléphone'),
-          React.createElement('input', {className:'form-input',value:form.telephone,onChange:e=>setForm(f=>({...f,telephone:e.target.value})),placeholder:'+41 ...'})
-        ),
-        React.createElement('div', {className:'form-group'},
-          React.createElement('label', {className:'form-label'}, 'Date de naissance'),
-          React.createElement('input', {className:'form-input',type:'date',value:form.date_naissance,onChange:e=>setForm(f=>({...f,date_naissance:e.target.value}))})
-        ),
-        React.createElement('div', {className:'form-group'},
-          React.createElement('label', {className:'form-label'}, 'Sexe'),
-          React.createElement('select', {className:'form-input',value:form.sexe,onChange:e=>setForm(f=>({...f,sexe:e.target.value}))},
-            sexes.map(s=>React.createElement('option',{key:s,value:s},s||'Non précisé'))
-          )
-        ),
-        React.createElement('div', {className:'form-group',style:{gridColumn:'1/-1'}},
-          React.createElement('label', {className:'form-label'}, 'Profil clinique'),
-          React.createElement('select', {className:'form-input',value:form.profil,onChange:e=>setForm(f=>({...f,profil:e.target.value}))},
-            profils.map(p=>React.createElement('option',{key:p,value:p},p.charAt(0).toUpperCase()+p.slice(1).replace(/_/g,' ')))
-          )
-        ),
-        React.createElement('div', {className:'form-group',style:{gridColumn:'1/-1'}},
-          React.createElement('label', {className:'form-label'}, 'Notes'),
-          React.createElement('textarea', {className:'form-input',value:form.notes,onChange:e=>setForm(f=>({...f,notes:e.target.value})),placeholder:'Antécédents, allergies, traitements en cours…'})
-        )
-      )
-    )
-  );
-}
-
-
-// ── SUPPLÉMENTS ───────────────────────────────────────────────────
-function Supplements({addToast}) {
-  const [search, setSearch] = React.useState('');
-  const [catFilter, setCatFilter] = React.useState('tous');
-  const [selected, setSelected] = React.useState(null);
-
-  const cats = ['tous','vitamine','mineral','omega','acide_amine','adaptogene','probiotique','plante','antioxydant','cognitif','sport','digestif','hormonal','immunite','stress','cardiovasculaire'];
-  const catLabels = {tous:'Tous',vitamine:'Vitamines',mineral:'Minéraux',omega:'Oméga',acide_amine:'Acides aminés',adaptogene:'Adaptogènes',probiotique:'Probiotiques',plante:'Plantes',antioxydant:'Antioxydants',cognitif:'Cognitif',sport:'Sport',digestif:'Digestif',hormonal:'Hormonal',immunite:'Immunité',stress:'Stress',cardiovasculaire:'Cardiovasculaire'};
-
-  const filtered = SUPPLEMENTS.filter(s => {
-    const matchSearch = !search || `${s.nom} ${s.indications} ${s.cat}`.toLowerCase().includes(search.toLowerCase());
-    const matchCat = catFilter==='tous' || s.cat===catFilter;
-    return matchSearch && matchCat;
-  });
-
-  function niveauColor(n) { return n==='l1'?'badge-green':n==='l2'?'badge-blue':n==='l3'?'badge-yellow':'badge-gray'; }
-  function niveauLabel(n) { return n==='l1'?'L1 — Méta-analyse':n==='l2'?'L2 — ECR':n==='l3'?'L3 — Cohorte':'L4 — Expert'; }
-
-  return React.createElement('div', null,
-    React.createElement('div', {className:'page-header'},
-      React.createElement('div', null,
-        React.createElement('div', {className:'page-title'}, 'Suppléments'),
-        React.createElement('div', {className:'page-sub'}, `${SUPPLEMENTS.length} suppléments · Base clinique PubMed`)
-      )
-    ),
-    React.createElement('div', {className:'search-bar'},
-      React.createElement('div', {className:'search-input-wrap'},
-        React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.search}}),
-        React.createElement('input', {className:'form-input',placeholder:'Rechercher — nom, indication, pathologie…',value:search,onChange:e=>setSearch(e.target.value)})
-      )
-    ),
-    React.createElement('div', {className:'filter-pills', style:{marginBottom:'1.25rem',flexWrap:'wrap'}},
-      cats.map(c => React.createElement('span', {key:c, className:`pill ${catFilter===c?'active':''}`, onClick:()=>setCatFilter(c)}, catLabels[c]||c))
-    ),
-    React.createElement('div', {style:{fontSize:'.8rem',color:'var(--text2)',marginBottom:'1rem'}}, `${filtered.length} résultat${filtered.length>1?'s':''}`),
-    React.createElement('div', {style:{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))',gap:'.85rem'}},
-      filtered.slice(0,60).map(s => React.createElement('div', {key:s.id, className:'supp-card', onClick:()=>setSelected(s)},
-        React.createElement('div', {className:'supp-cat'}, (catLabels[s.cat]||s.cat)+(s.sous?` · ${s.sous}`:'')),
-        React.createElement('div', {className:'supp-nom'}, s.nom),
-        React.createElement('div', {className:'supp-dose'}, s.dose),
-        React.createElement('div', {style:{marginTop:'.5rem',display:'flex',gap:'.4rem',flexWrap:'wrap'}},
-          React.createElement('span', {className:`badge ${niveauColor(s.niveau)}`}, s.niveauLabel||niveauLabel(s.niveau))
-        )
-      ))
-    ),
-    filtered.length>60 && React.createElement('div', {style:{textAlign:'center',marginTop:'1rem',color:'var(--text2)',fontSize:'.85rem'}},
-      `${filtered.length-60} suppléments supplémentaires — affinez votre recherche`
-    ),
-    selected && React.createElement(Modal, {show:true, onClose:()=>setSelected(null), title:selected.nom, lg:true},
-      React.createElement('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1.25rem'}},
-        React.createElement('div', null,
-          React.createElement('div', {className:'card-title'}, '📊 Niveau de preuve'),
-          React.createElement('span', {className:`badge ${niveauColor(selected.niveau)}`,style:{marginBottom:'1rem',display:'inline-flex'}}, selected.niveauLabel||niveauLabel(selected.niveau)),
-          selected.finding && React.createElement('p', {style:{fontSize:'.85rem',color:'var(--text2)',marginBottom:'1rem',lineHeight:1.6}}, selected.finding),
-          React.createElement('div', {className:'card-title'}, '💊 Dosage & Timing'),
-          React.createElement('div', {style:{background:'var(--bg3)',borderRadius:'8px',padding:'.75rem',marginBottom:'1rem'}},
-            React.createElement('div', {style:{fontSize:'.875rem',fontWeight:500,marginBottom:'.3rem'}}, selected.dose),
-            selected.timing && React.createElement('div', {style:{fontSize:'.8rem',color:'var(--text2)'}}, '⏰ '+selected.timing)
-          ),
-          React.createElement('div', {className:'card-title'}, '🔬 Biodisponibilité'),
-          React.createElement('p', {style:{fontSize:'.85rem',color:'var(--text2)',lineHeight:1.6}}, selected.bio)
-        ),
-        React.createElement('div', null,
-          React.createElement('div', {className:'card-title'}, '✅ Indications'),
-          React.createElement('p', {style:{fontSize:'.85rem',color:'var(--text)',lineHeight:1.7,marginBottom:'1rem'}}, selected.indications),
-          React.createElement('div', {className:'card-title'}, '⚠️ Contre-indications'),
-          React.createElement('p', {style:{fontSize:'.85rem',color:'#f85149',lineHeight:1.6,marginBottom:'1rem'}}, selected.ci),
-          selected.synergies && React.createElement(React.Fragment, null,
-            React.createElement('div', {className:'card-title'}, '🤝 Synergies'),
-            React.createElement('p', {style:{fontSize:'.85rem',color:'var(--text2)',lineHeight:1.6,marginBottom:'1rem'}}, selected.synergies)
-          ),
-          selected.pmid && React.createElement(React.Fragment, null,
-            React.createElement('div', {className:'card-title'}, '📖 PMID PubMed'),
-            React.createElement('div', {style:{display:'flex',flexWrap:'wrap',gap:'.35rem'}},
-              selected.pmid.split(',').map(id => React.createElement('a', {
-                key:id, href:`https://pubmed.ncbi.nlm.nih.gov/${id.trim()}`, target:'_blank',
-                style:{fontSize:'.75rem',color:'var(--info)',textDecoration:'none'}
-              }, id.trim()))
-            )
-          )
-        )
-      )
-    )
-  );
-}
-
-// ── CONSULTATIONS ─────────────────────────────────────────────────
-function Consultations({therapist, patients, consultations, setConsultations, addToast}) {
-  const [showModal, setShowModal] = React.useState(false);
-  const [form, setForm] = React.useState({patient_id:'',titre:'',notes:'',protocole:[]});
-  const [searchSupp, setSearchSupp] = React.useState('');
-  const [saving, setSaving] = React.useState(false);
-
-  const filteredSupp = SUPPLEMENTS.filter(s =>
-    searchSupp && `${s.nom} ${s.indications}`.toLowerCase().includes(searchSupp.toLowerCase())
-  ).slice(0,8);
-
-  function toggleSupp(s) {
-    setForm(f => {
-      const exists = f.protocole.find(x=>x.id===s.id);
-      return {...f, protocole: exists ? f.protocole.filter(x=>x.id!==s.id) : [...f.protocole, {id:s.id,nom:s.nom,dose:s.dose,duree:'1 mois'}]};
-    });
-  }
-
-  async function save() {
-    if(!form.patient_id){addToast('Sélectionnez un patient','error');return;}
-    setSaving(true);
-    try {
-      const {data,error} = await sb.from('consultations').insert([{
-        ...form, therapist_id:therapist.id,
-        date_consultation: new Date().toISOString()
-      }]).select().single();
-      if(error) throw error;
-      setConsultations(cs=>[data,...cs]);
-      addToast('Consultation enregistrée','success');
-      setShowModal(false);
-      setForm({patient_id:'',titre:'',notes:'',protocole:[]});
-    } catch(e){addToast(e.message,'error');}
-    finally{setSaving(false);}
-  }
-
-  const sorted = [...consultations].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
-
-  return React.createElement('div', null,
-    React.createElement('div', {className:'page-header'},
-      React.createElement('div', null,
-        React.createElement('div', {className:'page-title'}, 'Consultations'),
-        React.createElement('div', {className:'page-sub'}, `${consultations.length} consultation${consultations.length>1?'s':''}`)
-      ),
-      React.createElement('button', {className:'btn btn-primary', onClick:()=>setShowModal(true)},
-        React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.plus}}), ' Nouvelle consultation'
-      )
-    ),
-    consultations.length===0
-      ? React.createElement(Empty, {icon:'📋',title:'Aucune consultation',sub:'Créez votre première consultation',
-          action:React.createElement('button',{className:'btn btn-primary',onClick:()=>setShowModal(true)},React.createElement('span',{dangerouslySetInnerHTML:{__html:icons.plus}}),' Nouvelle consultation')})
-      : React.createElement('div', {className:'table-wrap'},
-          React.createElement('table', {className:'table'},
-            React.createElement('thead', null,
-              React.createElement('tr', null,
-                ['Patient','Titre','Protocole','Date',''].map(h=>React.createElement('th',{key:h},h))
-              )
-            ),
-            React.createElement('tbody', null,
-              sorted.map(c => {
-                const p = patients.find(x=>x.id===c.patient_id);
-                return React.createElement('tr', {key:c.id},
-                  React.createElement('td', null, p?`${p.prenom} ${p.nom}`:'—'),
-                  React.createElement('td', null, c.titre||'Consultation'),
-                  React.createElement('td', null,
-                    (c.protocole||[]).length>0
-                      ? React.createElement('span', {className:'badge badge-green'}, `${c.protocole.length} supplément${c.protocole.length>1?'s':''}`)
-                      : React.createElement('span', {className:'badge badge-gray'}, 'Sans protocole')
-                  ),
-                  React.createElement('td', null, new Date(c.created_at).toLocaleDateString('fr-FR')),
-                  React.createElement('td', null)
-                );
-              })
-            )
-          )
-        ),
-    React.createElement(Modal, {show:showModal, onClose:()=>setShowModal(false), title:'Nouvelle consultation', lg:true,
-      footer:React.createElement(React.Fragment,null,
-        React.createElement('button',{className:'btn btn-secondary',onClick:()=>setShowModal(false)},'Annuler'),
-        React.createElement('button',{className:'btn btn-primary',onClick:save,disabled:saving},saving?'Enregistrement…':'Enregistrer')
-      )},
-      React.createElement('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}},
-        React.createElement('div', null,
-          React.createElement('div', {className:'form-group'},
-            React.createElement('label', {className:'form-label'}, 'Patient *'),
-            React.createElement('select', {className:'form-input',value:form.patient_id,onChange:e=>setForm(f=>({...f,patient_id:e.target.value}))},
-              React.createElement('option', {value:''}, 'Sélectionner un patient…'),
-              patients.map(p=>React.createElement('option',{key:p.id,value:p.id},`${p.prenom} ${p.nom}`))
-            )
-          ),
-          React.createElement('div', {className:'form-group'},
-            React.createElement('label', {className:'form-label'}, 'Titre de la consultation'),
-            React.createElement('input', {className:'form-input',value:form.titre,onChange:e=>setForm(f=>({...f,titre:e.target.value})),placeholder:'Bilan initial, Suivi M2…'})
-          ),
-          React.createElement('div', {className:'form-group'},
-            React.createElement('label', {className:'form-label'}, 'Notes cliniques'),
-            React.createElement('textarea', {className:'form-input',style:{minHeight:120},value:form.notes,onChange:e=>setForm(f=>({...f,notes:e.target.value})),placeholder:'Anamnèse, observations, recommandations…'})
-          )
-        ),
-        React.createElement('div', null,
-          React.createElement('div', {className:'form-group'},
-            React.createElement('label', {className:'form-label'}, '💊 Protocole supplémentaire'),
-            React.createElement('input', {className:'form-input',value:searchSupp,onChange:e=>setSearchSupp(e.target.value),placeholder:'Rechercher un supplément…'})
-          ),
-          filteredSupp.length>0 && React.createElement('div', {style:{background:'var(--bg3)',borderRadius:'8px',padding:'.5rem',marginBottom:'1rem',maxHeight:180,overflowY:'auto'}},
-            filteredSupp.map(s => React.createElement('div', {key:s.id,
-              style:{padding:'.45rem .65rem',borderRadius:'6px',cursor:'pointer',display:'flex',justifyContent:'space-between',alignItems:'center',
-                background:form.protocole.find(x=>x.id===s.id)?'var(--accent-dim)':'transparent'},
-              onClick:()=>toggleSupp(s)},
-              React.createElement('span', {style:{fontSize:'.8rem'}}, s.nom),
-              form.protocole.find(x=>x.id===s.id) && React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.check},style:{color:'var(--accent)',width:14,height:14}})
-            ))
-          ),
-          form.protocole.length>0 && React.createElement('div', null,
-            React.createElement('div', {className:'card-title'}, `Protocole (${form.protocole.length})`),
-            form.protocole.map(s => React.createElement('div', {key:s.id, style:{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'.4rem 0',borderBottom:'1px solid var(--border2)'}},
-              React.createElement('span', {style:{fontSize:'.8rem',fontWeight:500}}, s.nom),
-              React.createElement('button', {className:'btn btn-danger btn-sm',onClick:()=>setForm(f=>({...f,protocole:f.protocole.filter(x=>x.id!==s.id)}))},
-                React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.close},style:{width:12,height:12}})
-              )
-            ))
-          )
-        )
-      )
-    )
-  );
-}
-
-
-// ── AGENDA ────────────────────────────────────────────────────────
-function Agenda({therapist, patients, addToast}) {
-  const [rdvs, setRdvs] = React.useState([]);
-  const [showModal, setShowModal] = React.useState(false);
-  const [form, setForm] = React.useState({patient_id:'',titre:'',date_rdv:'',duree_minutes:60,notes:''});
-  const [saving, setSaving] = React.useState(false);
-
-  React.useEffect(()=>{
-    sb.from('agenda').select('*').eq('therapist_id',therapist.id).order('date_rdv').then(({data})=>setRdvs(data||[]));
-  },[]);
-
-  async function save() {
-    if(!form.date_rdv||!form.titre){addToast('Titre et date requis','error');return;}
-    setSaving(true);
-    try {
-      const {data,error} = await sb.from('agenda').insert([{...form,therapist_id:therapist.id}]).select().single();
-      if(error) throw error;
-      setRdvs(rs=>[...rs,data].sort((a,b)=>new Date(a.date_rdv)-new Date(b.date_rdv)));
-      addToast('RDV ajouté','success'); setShowModal(false);
-      setForm({patient_id:'',titre:'',date_rdv:'',duree_minutes:60,notes:''});
-    } catch(e){addToast(e.message,'error');}
-    finally{setSaving(false);}
-  }
-
-  async function deleteRdv(id) {
-    if(!confirm('Supprimer ce RDV ?')) return;
-    await sb.from('agenda').delete().eq('id',id);
-    setRdvs(rs=>rs.filter(r=>r.id!==id));
-    addToast('RDV supprimé','success');
-  }
-
-  // Grouper par jour
-  const grouped = {};
-  rdvs.filter(r=>new Date(r.date_rdv)>=new Date(Date.now()-86400000)).forEach(r=>{
-    const day = new Date(r.date_rdv).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
-    if(!grouped[day]) grouped[day]=[];
-    grouped[day].push(r);
-  });
-
-  return React.createElement('div', null,
-    React.createElement('div', {className:'page-header'},
-      React.createElement('div', null,
-        React.createElement('div', {className:'page-title'}, 'Agenda'),
-        React.createElement('div', {className:'page-sub'}, 'Rendez-vous à venir')
-      ),
-      React.createElement('button', {className:'btn btn-primary', onClick:()=>setShowModal(true)},
-        React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.plus}}), ' Nouveau RDV'
-      )
-    ),
-    Object.keys(grouped).length===0
-      ? React.createElement(Empty, {icon:'📅',title:'Aucun rendez-vous',sub:'Planifiez votre premier rendez-vous'})
-      : Object.entries(grouped).map(([day,rs])=>
-          React.createElement('div', {key:day, className:'agenda-day'},
-            React.createElement('div', {className:'agenda-day-header'}, day),
-            rs.map(r => {
-              const p = patients.find(x=>x.id===r.patient_id);
-              return React.createElement('div', {key:r.id, className:'rdv-item'},
-                React.createElement('div', {className:'rdv-time'}, new Date(r.date_rdv).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})),
-                React.createElement('div', {className:'rdv-info'},
-                  React.createElement('div', {className:'rdv-title'}, r.titre),
-                  React.createElement('div', {className:'rdv-patient'}, p?`${p.prenom} ${p.nom}`:'' , r.duree_minutes?` · ${r.duree_minutes} min`:'')
-                ),
-                React.createElement('button', {className:'btn btn-danger btn-sm', onClick:()=>deleteRdv(r.id)},
-                  React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.trash}})
-                )
-              );
-            })
-          )
-        ),
-    React.createElement(Modal, {show:showModal, onClose:()=>setShowModal(false), title:'Nouveau rendez-vous',
-      footer:React.createElement(React.Fragment,null,
-        React.createElement('button',{className:'btn btn-secondary',onClick:()=>setShowModal(false)},'Annuler'),
-        React.createElement('button',{className:'btn btn-primary',onClick:save,disabled:saving},saving?'Enregistrement…':'Enregistrer')
-      )},
-      React.createElement('div', {className:'form-group'},
-        React.createElement('label', {className:'form-label'}, 'Titre *'),
-        React.createElement('input', {className:'form-input',value:form.titre,onChange:e=>setForm(f=>({...f,titre:e.target.value})),placeholder:'Consultation initiale, Bilan suivi…'})
-      ),
-      React.createElement('div', {className:'form-group'},
-        React.createElement('label', {className:'form-label'}, 'Patient'),
-        React.createElement('select', {className:'form-input',value:form.patient_id,onChange:e=>setForm(f=>({...f,patient_id:e.target.value}))},
-          React.createElement('option', {value:''}, 'Sélectionner un patient…'),
-          patients.map(p=>React.createElement('option',{key:p.id,value:p.id},`${p.prenom} ${p.nom}`))
-        )
-      ),
-      React.createElement('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'.75rem'}},
-        React.createElement('div', {className:'form-group'},
-          React.createElement('label', {className:'form-label'}, 'Date et heure *'),
-          React.createElement('input', {className:'form-input',type:'datetime-local',value:form.date_rdv,onChange:e=>setForm(f=>({...f,date_rdv:e.target.value}))})
-        ),
-        React.createElement('div', {className:'form-group'},
-          React.createElement('label', {className:'form-label'}, 'Durée (min)'),
-          React.createElement('input', {className:'form-input',type:'number',value:form.duree_minutes,onChange:e=>setForm(f=>({...f,duree_minutes:+e.target.value})),min:15,step:15})
-        )
-      ),
-      React.createElement('div', {className:'form-group'},
-        React.createElement('label', {className:'form-label'}, 'Notes'),
-        React.createElement('textarea', {className:'form-input',value:form.notes,onChange:e=>setForm(f=>({...f,notes:e.target.value})),placeholder:'Informations complémentaires…'})
-      )
-    )
-  );
-}
-
-// ── FACTURATION ───────────────────────────────────────────────────
-function Facturation({therapist, addToast}) {
-  return React.createElement('div', null,
-    React.createElement('div', {className:'page-header'},
-      React.createElement('div', null,
-        React.createElement('div', {className:'page-title'}, 'Abonnement & Facturation'),
-        React.createElement('div', {className:'page-sub'}, 'Gérez votre abonnement NutriCore')
-      )
-    ),
-    React.createElement('div', {className:'grid-2'},
-      React.createElement('div', {className:'plan-card'},
-        React.createElement('div', {style:{marginBottom:'.5rem',fontSize:'.85rem',color:'var(--accent)',fontWeight:600}}, 'PLAN PROFESSIONNEL'),
-        React.createElement('div', {className:'plan-price'}, `${TARIF_MENSUEL} CHF`),
-        React.createElement('div', {className:'plan-period'}, 'par mois · par thérapeute'),
-        React.createElement('ul', {className:'plan-features'},
-          ['Patients illimités','315 suppléments documentés (PMID)','Consultations & protocoles illimités','ARIA + Nova — IA clinique intégrée','Agenda et gestion des RDV','Données hébergées en Europe (RGPD)','Mises à jour automatiques','Support prioritaire'].map(f =>
-            React.createElement('li', {key:f}, f)
-          )
-        ),
-        React.createElement('div', {style:{padding:'.75rem',background:'var(--accent-dim)',borderRadius:'8px',textAlign:'center'}},
-          React.createElement('div', {style:{fontSize:'.8rem',color:'var(--text2)',marginBottom:'.25rem'}}, 'Statut abonnement'),
-          React.createElement('div', {className:'badge badge-green', style:{fontSize:'.875rem',padding:'.4rem .9rem'}}, '✅ Actif')
-        )
-      ),
-      React.createElement('div', {className:'card'},
-        React.createElement('div', {className:'card-title'}, '📊 Utilisation ce mois'),
-        React.createElement('div', {style:{display:'flex',flexDirection:'column',gap:'.75rem',marginTop:'.5rem'}},
-          [{label:'Compte créé le',value:therapist?.created_at?new Date(therapist.created_at).toLocaleDateString('fr-FR'):'—'},
-           {label:'Prochaine facturation',value:'1er du mois'},
-           {label:'Montant',value:`${TARIF_MENSUEL} CHF`},
-           {label:'Mode de paiement',value:'En attente de configuration'}
-          ].map(({label,value})=>
-            React.createElement('div', {key:label, style:{display:'flex',justifyContent:'space-between',padding:'.6rem 0',borderBottom:'1px solid var(--border2)'}},
-              React.createElement('span', {style:{fontSize:'.875rem',color:'var(--text2)'}}, label),
-              React.createElement('span', {style:{fontSize:'.875rem',fontWeight:500}}, value)
-            )
-          )
-        ),
-        React.createElement('div', {style:{marginTop:'1.25rem',padding:'1rem',background:'var(--bg3)',borderRadius:'8px'}},
-          React.createElement('div', {style:{fontSize:'.8rem',color:'var(--text2)',marginBottom:'.5rem'}}, '💡 Pour configurer le paiement automatique :'),
-          React.createElement('p', {style:{fontSize:'.8rem',color:'var(--text2)',lineHeight:1.6}}, 'Contactez Tony — tony@nutricore.ch · +41 00 000 00 00')
-        )
-      )
-    )
-  );
-}
-
-// ── ARIA / NOVA ────────────────────────────────────────────────────
-function AriaChat({therapist, patients, addToast}) {
-  const [messages, setMessages] = React.useState([
-    {role:'ai', content:'Bonjour ! Je suis ARIA + Nova, votre assistant clinique IA. Je peux vous aider à analyser des cas cliniques, rechercher des protocoles, interpréter des bilans biologiques et suggérer des compléments adaptés. Comment puis-je vous aider ?', ts:new Date()}
-  ]);
-  const [input, setInput] = React.useState('');
-  const [loading, setLoading] = React.useState(false);
-  const bottomRef = React.useRef(null);
-
-  React.useEffect(()=>{ bottomRef.current?.scrollIntoView({behavior:'smooth'}); },[messages]);
-
-  async function send() {
-    if(!input.trim()||loading) return;
-    const userMsg = {role:'user', content:input, ts:new Date()};
-    setMessages(ms=>[...ms,userMsg]);
-    setInput(''); setLoading(true);
-    try {
-      const systemPrompt = `Tu es ARIA et Nova, l'assistant clinique IA de NutriCore v${NC_VERSION}.
-Tu es expert en micronutrition clinique, phytothérapie, et médecine fonctionnelle.
-Tu as accès à une base de ${SUPPLEMENTS.length} suppléments documentés avec preuves PubMed.
-Le thérapeute s'appelle ${therapist?.prenom||''} ${therapist?.nom||''}.
-Réponds toujours en français, de manière professionnelle et basée sur les preuves scientifiques (PMID PubMed).
-Pour chaque recommandation, cite le niveau de preuve (L1/L2/L3) et les études clés.
-⚠️ Rappelle que tes suggestions sont indicatives et ne remplacent pas l'évaluation clinique.`;
-
-      const resp = await fetch('https://api.anthropic.com/v1/messages', {
-        method:'POST',
-        headers:{'Content-Type':'application/json','x-api-key':ANTHROPIC_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-        body: JSON.stringify({
-          model:'claude-sonnet-4-20250514', max_tokens:1000,
-          system: systemPrompt,
-          messages: messages.filter(m=>m.role!=='ai'||(m.role==='ai'&&messages.indexOf(m)>0)).concat(userMsg).map(m=>({role:m.role==='ai'?'assistant':'user',content:m.content}))
-        })
-      });
-      const data = await resp.json();
-      const reply = data.content?.[0]?.text || 'Désolé, je n\'ai pas pu générer une réponse.';
-      setMessages(ms=>[...ms,{role:'ai',content:reply,ts:new Date()}]);
-    } catch(e) {
-      setMessages(ms=>[...ms,{role:'ai',content:'❌ Erreur de connexion. Vérifiez la clé API.',ts:new Date()}]);
-    } finally { setLoading(false); }
-  }
-
-  return React.createElement('div', null,
-    React.createElement('div', {className:'page-header'},
-      React.createElement('div', null,
-        React.createElement('div', {className:'page-title'}, '🤖 ARIA · Nova'),
-        React.createElement('div', {className:'page-sub'}, 'Assistant IA clinique — Micronutrition & Phytothérapie')
-      )
-    ),
-    React.createElement('div', {className:'card', style:{padding:0,display:'flex',flexDirection:'column',height:'calc(100vh - 180px)'}},
-      React.createElement('div', {className:'chat-messages'},
-        messages.map((m,i) => React.createElement('div', {key:i, className:`chat-msg ${m.role}`},
-          m.role==='ai' && React.createElement('div', {className:'chat-avatar'}, '🌿'),
-          React.createElement('div', {className:'chat-bubble'}, m.content),
-          m.role==='user' && React.createElement('div', {className:'chat-avatar'}, '👤')
-        )),
-        loading && React.createElement('div', {className:'chat-msg ai'},
-          React.createElement('div', {className:'chat-avatar'}, '🌿'),
-          React.createElement('div', {className:'chat-bubble'}, React.createElement('div', {className:'spinner',style:{width:16,height:16}}))
-        ),
-        React.createElement('div', {ref:bottomRef})
-      ),
-      React.createElement('div', {className:'chat-input-wrap'},
-        React.createElement('input', {
-          className:'form-input', style:{flex:1},
-          value:input, onChange:e=>setInput(e.target.value),
-          onKeyDown:e=>e.key==='Enter'&&!e.shiftKey&&send(),
-          placeholder:'Posez votre question clinique… (Entrée pour envoyer)',
-          disabled:loading
-        }),
-        React.createElement('button', {className:'btn btn-primary', onClick:send, disabled:loading||!input.trim()},
-          React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.send}})
-        )
-      )
-    )
-  );
-}
-
-// ── SAV ────────────────────────────────────────────────────────────
-function SAV({therapist, addToast}) {
-  const [msg, setMsg] = React.useState('');
-  const [sent, setSent] = React.useState(false);
-
-  return React.createElement('div', null,
-    React.createElement('div', {className:'page-header'},
-      React.createElement('div', null,
-        React.createElement('div', {className:'page-title'}, 'Support & Aide'),
-        React.createElement('div', {className:'page-sub'}, 'Nous sommes là pour vous aider')
-      )
-    ),
-    React.createElement('div', {className:'grid-2'},
-      React.createElement('div', {className:'card'},
-        React.createElement('div', {className:'card-title'}, '📬 Contacter le support'),
-        sent
-          ? React.createElement('div', {style:{textAlign:'center',padding:'2rem',color:'var(--accent)'}}, '✅ Message envoyé ! Réponse sous 24h.')
-          : React.createElement(React.Fragment, null,
-              React.createElement('div', {className:'form-group'},
-                React.createElement('label', {className:'form-label'}, 'Votre message'),
-                React.createElement('textarea', {className:'form-input',style:{minHeight:120},value:msg,onChange:e=>setMsg(e.target.value),placeholder:'Décrivez votre question ou problème…'})
-              ),
-              React.createElement('button', {className:'btn btn-primary', onClick:()=>{if(msg.trim()){setSent(true);addToast('Message envoyé','success');}}},
-                'Envoyer le message'
-              )
-            )
-      ),
-      React.createElement('div', {className:'card'},
-        React.createElement('div', {className:'card-title'}, '📖 Ressources'),
-        React.createElement('div', {style:{display:'flex',flexDirection:'column',gap:'.75rem'}},
-          [{icon:'📧',label:'Email support',value:'support@nutricore.ch'},
-           {icon:'📱',label:'Version',value:`NutriCore v${NC_VERSION}`},
-           {icon:'🔄',label:'Mises à jour',value:'Automatiques'},
-           {icon:'🔒',label:'Sécurité',value:'RGPD · Hébergement EU'},
-          ].map(({icon,label,value})=>
-            React.createElement('div', {key:label, style:{display:'flex',justifyContent:'space-between',padding:'.6rem 0',borderBottom:'1px solid var(--border2)'}},
-              React.createElement('span', {style:{fontSize:'.875rem',color:'var(--text2)'}}, icon+' '+label),
-              React.createElement('span', {style:{fontSize:'.875rem',fontWeight:500,color:'var(--accent)'}}, value)
-            )
-          )
-        )
-      )
-    )
-  );
-}
-
-
-// ── SIDEBAR ────────────────────────────────────────────────────────
-function Sidebar({view, setView, therapist, onLogout}) {
-  const navItems = [
-    {id:'dashboard', label:'Dashboard', icon:'dashboard'},
-    {id:'patients', label:'Patients', icon:'patients'},
-    {id:'supplements', label:'Suppléments', icon:'supplements'},
-    {id:'consultations', label:'Consultations', icon:'consultations'},
-    {id:'agenda', label:'Agenda', icon:'agenda'},
-    {id:'aria', label:'ARIA · Nova', icon:'aria'},
-    {id:'facturation', label:'Facturation', icon:'facturation'},
-    {id:'sav', label:'Support', icon:'sav'},
-  ];
-
-  const initials = ((therapist?.prenom?.[0]||'')+(therapist?.nom?.[0]||therapist?.email?.[0]||'')).toUpperCase();
-
-  return React.createElement('div', {className:'sidebar'},
-    React.createElement('div', {className:'sidebar-logo'},
-      React.createElement('div', {className:'sidebar-logo-icon'}, '🌿'),
-      React.createElement('div', {className:'sidebar-logo-text'}, 'NutriCore')
-    ),
-    React.createElement('div', {className:'nav-section'},
-      React.createElement('div', {className:'nav-label'}, 'Navigation'),
-      navItems.map(item => React.createElement('div', {
-        key:item.id,
-        className:`nav-item ${view===item.id?'active':''}`,
-        onClick:()=>setView(item.id)
-      },
-        React.createElement('span', {
-          style:{width:17,height:17,display:'inline-flex',alignItems:'center'},
-          dangerouslySetInnerHTML:{__html:icons[item.icon]}
-        }),
-        item.label
-      ))
-    ),
-    React.createElement('div', {className:'sidebar-bottom'},
-      React.createElement('div', {className:'user-card', onClick:()=>setView('sav')},
-        React.createElement('div', {className:'user-avatar'}, initials||'?'),
-        React.createElement('div', {className:'user-info'},
-          React.createElement('div', {className:'user-name'}, therapist?.prenom?`${therapist.prenom} ${therapist.nom||''}`:therapist?.email||'Thérapeute'),
-          React.createElement('div', {className:'user-role'}, therapist?.specialite||'Naturopathe')
-        )
-      ),
-      React.createElement('div', {className:'nav-item', style:{marginTop:'.25rem',color:'var(--text3)'}, onClick:onLogout},
-        React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.logout}}),
-        'Déconnexion'
       )
     )
   );
