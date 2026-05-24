@@ -4,268 +4,175 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NutriCore — Plateforme Clinique</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #0d1117;
-  --bg2: #161b22;
-  --bg3: #1c2330;
-  --card: #1c2330;
-  --border: #30363d;
-  --border2: #21262d;
-  --accent: #3fb68b;
-  --accent2: #2ea373;
-  --accent-dim: rgba(63,182,139,0.12);
-  --accent-glow: rgba(63,182,139,0.25);
-  --text: #e6edf3;
-  --text2: #8b949e;
-  --text3: #6e7681;
-  --danger: #f85149;
-  --warning: #d29922;
-  --info: #58a6ff;
-  --radius: 10px;
-  --radius-lg: 16px;
-  --shadow: 0 4px 24px rgba(0,0,0,0.4);
-  --sidebar-w: 240px;
-}
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; font-size:14px; }
+:root{--bg:#0d1117;--bg2:#161b22;--bg3:#1c2330;--card:#1c2330;--border:#30363d;--border2:#21262d;--accent:#3fb68b;--accent2:#2ea373;--accent-dim:rgba(63,182,139,0.12);--text:#e6edf3;--text2:#8b949e;--text3:#6e7681;--danger:#f85149;--warning:#d29922;--info:#58a6ff;--r:10px;--rlg:16px;--sw:240px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
-/* ── SCROLLBAR ── */
-::-webkit-scrollbar { width:6px; height:6px; }
-::-webkit-scrollbar-track { background:var(--bg2); }
-::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+/* AUTH */
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 20% 50%,rgba(63,182,139,0.08),transparent 60%),var(--bg)}
+.auth-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);padding:2.5rem;width:420px;box-shadow:0 4px 24px rgba(0,0,0,0.4)}
+.auth-logo{display:flex;align-items:center;gap:.75rem;margin-bottom:2rem}
+.auth-logo-icon{width:42px;height:42px;background:var(--accent-dim);border:1px solid var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem}
+.auth-logo-text{font-family:'Fraunces',serif;font-size:1.5rem;color:var(--accent);font-weight:600}
+.auth-tabs{display:flex;gap:.5rem;margin-bottom:1.5rem;background:var(--bg3);border-radius:8px;padding:.25rem}
+.auth-tab{flex:1;padding:.5rem;text-align:center;border-radius:6px;cursor:pointer;font-size:.875rem;color:var(--text2);transition:.2s;border:none;background:none;font-family:inherit}
+.auth-tab.active{background:var(--accent);color:#000;font-weight:600}
 
-/* ── AUTH ── */
-.auth-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center;
-  background: radial-gradient(ellipse at 20% 50%, rgba(63,182,139,0.08) 0%, transparent 60%),
-              radial-gradient(ellipse at 80% 20%, rgba(63,182,139,0.05) 0%, transparent 50%), var(--bg); }
-.auth-card { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius-lg);
-  padding:2.5rem; width:420px; box-shadow:var(--shadow); }
-.auth-logo { display:flex; align-items:center; gap:.75rem; margin-bottom:2rem; }
-.auth-logo-icon { width:42px; height:42px; background:var(--accent-dim); border:1px solid var(--accent);
-  border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; }
-.auth-logo-text { font-family:'Fraunces',serif; font-size:1.5rem; color:var(--accent); font-weight:600; }
-.auth-title { font-size:1.25rem; font-weight:600; margin-bottom:.4rem; }
-.auth-sub { color:var(--text2); font-size:.875rem; margin-bottom:1.75rem; }
-.auth-tabs { display:flex; gap:.5rem; margin-bottom:1.75rem; background:var(--bg3); border-radius:8px; padding:.25rem; }
-.auth-tab { flex:1; padding:.5rem; text-align:center; border-radius:6px; cursor:pointer; font-size:.875rem;
-  color:var(--text2); transition:.2s; border:none; background:none; font-family:inherit; }
-.auth-tab.active { background:var(--accent); color:#000; font-weight:600; }
+/* FORMS */
+.form-group{margin-bottom:1rem}
+.form-label{display:block;font-size:.8rem;color:var(--text2);margin-bottom:.4rem;font-weight:500}
+.form-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:.65rem .9rem;color:var(--text);font-size:.9rem;font-family:inherit;outline:none;transition:.2s}
+.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+select.form-input{cursor:pointer}
+textarea.form-input{resize:vertical;min-height:80px}
 
-/* ── FORMS ── */
-.form-group { margin-bottom:1rem; }
-.form-label { display:block; font-size:.8rem; color:var(--text2); margin-bottom:.4rem; font-weight:500; }
-.form-input { width:100%; background:var(--bg3); border:1px solid var(--border); border-radius:8px;
-  padding:.65rem .9rem; color:var(--text); font-size:.9rem; font-family:inherit; outline:none; transition:.2s; }
-.form-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-dim); }
-.form-input::placeholder { color:var(--text3); }
-select.form-input { cursor:pointer; }
-textarea.form-input { resize:vertical; min-height:80px; }
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.1rem;border-radius:8px;border:none;cursor:pointer;font-family:inherit;font-size:.875rem;font-weight:500;transition:.2s}
+.btn-primary{background:var(--accent);color:#000}.btn-primary:hover{background:var(--accent2)}
+.btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border)}.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
+.btn-danger{background:rgba(248,81,73,0.15);color:var(--danger);border:1px solid rgba(248,81,73,0.3)}
+.btn-lg{padding:.8rem 1.5rem;font-size:1rem;border-radius:10px}
+.btn-full{width:100%;justify-content:center}
+.btn-sm{padding:.35rem .75rem;font-size:.78rem}
+.btn:disabled{opacity:.5;cursor:not-allowed}
 
-/* ── BUTTONS ── */
-.btn { display:inline-flex; align-items:center; gap:.5rem; padding:.6rem 1.1rem; border-radius:8px;
-  border:none; cursor:pointer; font-family:inherit; font-size:.875rem; font-weight:500; transition:.2s; }
-.btn-primary { background:var(--accent); color:#000; }
-.btn-primary:hover { background:var(--accent2); }
-.btn-secondary { background:var(--bg3); color:var(--text); border:1px solid var(--border); }
-.btn-secondary:hover { border-color:var(--accent); color:var(--accent); }
-.btn-danger { background:rgba(248,81,73,0.15); color:var(--danger); border:1px solid rgba(248,81,73,0.3); }
-.btn-danger:hover { background:rgba(248,81,73,0.25); }
-.btn-lg { padding:.8rem 1.5rem; font-size:1rem; border-radius:10px; }
-.btn-full { width:100%; justify-content:center; }
-.btn-sm { padding:.35rem .75rem; font-size:.8rem; }
-.btn:disabled { opacity:.5; cursor:not-allowed; }
-.btn svg { width:16px; height:16px; }
+/* LAYOUT */
+.app{display:flex;min-height:100vh}
+.sidebar{width:var(--sw);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;padding:1.25rem 0}
+.sidebar-logo{display:flex;align-items:center;gap:.65rem;padding:0 1.25rem 1.5rem;border-bottom:1px solid var(--border2);margin-bottom:1rem}
+.sidebar-logo-icon{width:34px;height:34px;background:var(--accent-dim);border:1px solid var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.sidebar-logo-text{font-family:'Fraunces',serif;font-size:1.15rem;color:var(--accent);font-weight:600}
+.nav-section{padding:0 .75rem;margin-bottom:.25rem}
+.nav-label{font-size:.68rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.08em;padding:.6rem .5rem .3rem}
+.nav-item{display:flex;align-items:center;gap:.65rem;padding:.6rem .75rem;border-radius:8px;cursor:pointer;color:var(--text2);font-size:.875rem;transition:.15s}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:var(--accent-dim);color:var(--accent);font-weight:500}
+.sidebar-bottom{margin-top:auto;padding:1rem .75rem 0;border-top:1px solid var(--border2)}
+.user-card{display:flex;align-items:center;gap:.65rem;padding:.65rem .75rem;border-radius:8px;cursor:pointer;transition:.15s}
+.user-card:hover{background:var(--bg3)}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent-dim);border:1px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:600;color:var(--accent);flex-shrink:0}
+.user-name{font-size:.8rem;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:.7rem;color:var(--text3)}
+.main{margin-left:var(--sw);flex:1;padding:2rem;min-height:100vh}
 
-/* ── APP LAYOUT ── */
-.app { display:flex; min-height:100vh; }
-.sidebar { width:var(--sidebar-w); background:var(--bg2); border-right:1px solid var(--border);
-  display:flex; flex-direction:column; position:fixed; top:0; left:0; height:100vh; z-index:100;
-  padding:1.25rem 0; }
-.sidebar-logo { display:flex; align-items:center; gap:.65rem; padding:0 1.25rem 1.5rem; border-bottom:1px solid var(--border2); margin-bottom:1rem; }
-.sidebar-logo-icon { width:34px; height:34px; background:var(--accent-dim); border:1px solid var(--accent);
-  border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
-.sidebar-logo-text { font-family:'Fraunces',serif; font-size:1.15rem; color:var(--accent); font-weight:600; }
-.nav-section { padding:0 .75rem; margin-bottom:.25rem; }
-.nav-label { font-size:.68rem; color:var(--text3); font-weight:600; text-transform:uppercase;
-  letter-spacing:.08em; padding:.6rem .5rem .3rem; }
-.nav-item { display:flex; align-items:center; gap:.65rem; padding:.6rem .75rem; border-radius:8px;
-  cursor:pointer; color:var(--text2); font-size:.875rem; font-weight:400; transition:.15s; }
-.nav-item:hover { background:var(--bg3); color:var(--text); }
-.nav-item.active { background:var(--accent-dim); color:var(--accent); font-weight:500; }
-.nav-item svg { width:17px; height:17px; flex-shrink:0; }
-.nav-badge { margin-left:auto; background:var(--accent); color:#000; font-size:.65rem;
-  font-weight:700; padding:.1rem .4rem; border-radius:10px; }
-.sidebar-bottom { margin-top:auto; padding:1rem .75rem 0; border-top:1px solid var(--border2); }
-.user-card { display:flex; align-items:center; gap:.65rem; padding:.65rem .75rem; border-radius:8px;
-  cursor:pointer; transition:.15s; }
-.user-card:hover { background:var(--bg3); }
-.user-avatar { width:32px; height:32px; border-radius:50%; background:var(--accent-dim);
-  border:1px solid var(--accent); display:flex; align-items:center; justify-content:center;
-  font-size:.8rem; font-weight:600; color:var(--accent); flex-shrink:0; }
-.user-info { flex:1; min-width:0; }
-.user-name { font-size:.8rem; font-weight:500; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.user-role { font-size:.7rem; color:var(--text3); }
+/* PAGE */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.75rem}
+.page-title{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:600}
+.page-sub{color:var(--text2);font-size:.875rem;margin-top:.25rem}
 
-/* ── MAIN CONTENT ── */
-.main { margin-left:var(--sidebar-w); flex:1; padding:2rem; min-height:100vh; }
-.page-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:1.75rem; }
-.page-title { font-family:'Fraunces',serif; font-size:1.6rem; font-weight:600; line-height:1.2; }
-.page-sub { color:var(--text2); font-size:.875rem; margin-top:.25rem; }
-.page-actions { display:flex; gap:.75rem; align-items:center; }
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--rlg);padding:1.25rem}
+.card-title{font-size:.78rem;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rlg);padding:1.1rem 1.25rem;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent)}
+.stat-label{font-size:.75rem;color:var(--text2);font-weight:500;margin-bottom:.5rem}
+.stat-value{font-family:'Fraunces',serif;font-size:2rem;font-weight:600;line-height:1}
+.stat-sub{font-size:.75rem;color:var(--accent);margin-top:.3rem}
+.stat-icon{position:absolute;top:1rem;right:1rem;font-size:1.3rem}
 
-/* ── CARDS ── */
-.card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.25rem; }
-.card-sm { padding:.9rem 1rem; }
-.card-title { font-size:.8rem; color:var(--text2); font-weight:500; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.75rem; }
+/* GRIDS */
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}
 
-/* ── GRID ── */
-.grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; }
-.grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
-.grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; }
-@media(max-width:1200px) { .grid-4 { grid-template-columns:repeat(2,1fr); } }
-@media(max-width:768px) { .grid-3,.grid-2 { grid-template-columns:1fr; } }
+/* TABLE */
+.table-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border)}
+.table{width:100%;border-collapse:collapse}
+.table th{background:var(--bg3);padding:.7rem 1rem;text-align:left;font-size:.75rem;color:var(--text2);font-weight:500;text-transform:uppercase;letter-spacing:.05em}
+.table td{padding:.75rem 1rem;border-top:1px solid var(--border2);font-size:.875rem;vertical-align:middle}
+.table tr:hover td{background:rgba(255,255,255,0.02)}
 
-/* ── STAT CARDS ── */
-.stat-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius-lg);
-  padding:1.1rem 1.25rem; position:relative; overflow:hidden; }
-.stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--accent); }
-.stat-label { font-size:.75rem; color:var(--text2); font-weight:500; margin-bottom:.5rem; }
-.stat-value { font-family:'Fraunces',serif; font-size:2rem; font-weight:600; color:var(--text); line-height:1; }
-.stat-sub { font-size:.75rem; color:var(--accent); margin-top:.3rem; }
-.stat-icon { position:absolute; top:1rem; right:1rem; width:36px; height:36px;
-  background:var(--accent-dim); border-radius:8px; display:flex; align-items:center; justify-content:center; }
+/* SEARCH */
+.search-wrap{position:relative;flex:1;max-width:380px}
+.search-wrap input{padding-left:2.5rem}
+.search-icon{position:absolute;left:.75rem;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
+.filter-pills{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
+.pill{padding:.35rem .85rem;border-radius:20px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:.78rem;cursor:pointer;transition:.15s}
+.pill.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.pill:hover{border-color:var(--accent);color:var(--accent)}
 
-/* ── TABLE ── */
-.table-wrap { overflow-x:auto; border-radius:var(--radius); border:1px solid var(--border); }
-.table { width:100%; border-collapse:collapse; }
-.table th { background:var(--bg3); padding:.7rem 1rem; text-align:left; font-size:.75rem;
-  color:var(--text2); font-weight:500; text-transform:uppercase; letter-spacing:.05em; white-space:nowrap; }
-.table td { padding:.75rem 1rem; border-top:1px solid var(--border2); font-size:.875rem; vertical-align:middle; }
-.table tr:hover td { background:rgba(255,255,255,0.02); }
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rlg);width:100%;max-width:560px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 4px 24px rgba(0,0,0,0.4)}
+.modal.modal-lg{max-width:820px}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;border-bottom:1px solid var(--border2)}
+.modal-title{font-size:1.05rem;font-weight:600}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--text2);font-size:1.2rem;padding:.25rem .5rem;border-radius:6px}
+.modal-close:hover{color:var(--text);background:var(--bg3)}
+.modal-body{padding:1.5rem;overflow-y:auto;flex:1}
+.modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--border2);display:flex;gap:.75rem;justify-content:flex-end}
 
-/* ── SEARCH BAR ── */
-.search-bar { display:flex; gap:.75rem; align-items:center; margin-bottom:1.25rem; }
-.search-input-wrap { position:relative; flex:1; max-width:380px; }
-.search-input-wrap svg { position:absolute; left:.75rem; top:50%; transform:translateY(-50%); width:16px; height:16px; color:var(--text3); }
-.search-input-wrap .form-input { padding-left:2.5rem; }
-.filter-pills { display:flex; gap:.5rem; flex-wrap:wrap; }
-.pill { padding:.35rem .85rem; border-radius:20px; border:1px solid var(--border); background:var(--bg3);
-  color:var(--text2); font-size:.78rem; cursor:pointer; transition:.15s; }
-.pill.active { background:var(--accent-dim); border-color:var(--accent); color:var(--accent); }
-.pill:hover { border-color:var(--accent); color:var(--accent); }
+/* BADGE */
+.badge{display:inline-flex;align-items:center;padding:.2rem .65rem;border-radius:20px;font-size:.72rem;font-weight:500}
+.badge-green{background:rgba(63,182,139,0.15);color:var(--accent);border:1px solid rgba(63,182,139,0.3)}
+.badge-red{background:rgba(248,81,73,0.12);color:var(--danger);border:1px solid rgba(248,81,73,0.25)}
+.badge-yellow{background:rgba(210,153,34,0.12);color:var(--warning);border:1px solid rgba(210,153,34,0.25)}
+.badge-blue{background:rgba(88,166,255,0.12);color:var(--info);border:1px solid rgba(88,166,255,0.25)}
+.badge-gray{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
 
-/* ── MODAL ── */
-.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px);
-  z-index:1000; display:flex; align-items:center; justify-content:center; padding:1rem; }
-.modal { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius-lg);
-  width:100%; max-width:560px; max-height:90vh; display:flex; flex-direction:column; box-shadow:var(--shadow); }
-.modal-lg { max-width:800px; }
-.modal-header { display:flex; align-items:center; justify-content:space-between;
-  padding:1.25rem 1.5rem; border-bottom:1px solid var(--border2); }
-.modal-title { font-size:1.05rem; font-weight:600; }
-.modal-close { background:none; border:none; cursor:pointer; color:var(--text2); padding:.25rem;
-  border-radius:6px; display:flex; }
-.modal-close:hover { color:var(--text); background:var(--bg3); }
-.modal-body { padding:1.5rem; overflow-y:auto; flex:1; }
-.modal-footer { padding:1rem 1.5rem; border-top:1px solid var(--border2); display:flex; gap:.75rem; justify-content:flex-end; }
+/* TOAST */
+.toast-wrap{position:fixed;bottom:1.5rem;right:1.5rem;z-index:2000;display:flex;flex-direction:column;gap:.5rem}
+.toast{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:.75rem 1.1rem;font-size:.875rem;display:flex;align-items:center;gap:.65rem;box-shadow:0 4px 24px rgba(0,0,0,0.4);animation:slideIn .3s ease;min-width:260px;cursor:pointer}
+.toast-success{border-color:rgba(63,182,139,0.4)}
+.toast-error{border-color:rgba(248,81,73,0.4)}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
 
-/* ── BADGE ── */
-.badge { display:inline-flex; align-items:center; gap:.3rem; padding:.2rem .65rem; border-radius:20px; font-size:.72rem; font-weight:500; }
-.badge-green { background:rgba(63,182,139,0.15); color:var(--accent); border:1px solid rgba(63,182,139,0.3); }
-.badge-red { background:rgba(248,81,73,0.12); color:var(--danger); border:1px solid rgba(248,81,73,0.25); }
-.badge-yellow { background:rgba(210,153,34,0.12); color:var(--warning); border:1px solid rgba(210,153,34,0.25); }
-.badge-blue { background:rgba(88,166,255,0.12); color:var(--info); border:1px solid rgba(88,166,255,0.25); }
-.badge-gray { background:var(--bg3); color:var(--text2); border:1px solid var(--border); }
+/* PATIENT */
+.patient-row{display:flex;align-items:center;gap:1rem;padding:.75rem 1rem;border-radius:8px;cursor:default;transition:.15s;border:1px solid transparent}
+.patient-row:hover{background:var(--bg3);border-color:var(--border)}
+.patient-avatar{width:38px;height:38px;border-radius:50%;background:var(--accent-dim);border:1px solid rgba(63,182,139,0.3);display:flex;align-items:center;justify-content:center;font-weight:600;color:var(--accent);font-size:.9rem;flex-shrink:0}
 
-/* ── TOAST ── */
-.toast-wrap { position:fixed; bottom:1.5rem; right:1.5rem; z-index:2000; display:flex; flex-direction:column; gap:.5rem; }
-.toast { background:var(--bg2); border:1px solid var(--border); border-radius:10px;
-  padding:.75rem 1.1rem; font-size:.875rem; display:flex; align-items:center; gap:.65rem;
-  box-shadow:var(--shadow); animation:slideIn .3s ease; min-width:260px; }
-.toast-success { border-color:rgba(63,182,139,0.4); }
-.toast-error { border-color:rgba(248,81,73,0.4); }
-@keyframes slideIn { from { transform:translateX(100%); opacity:0; } to { transform:translateX(0); opacity:1; } }
+/* CHAT */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 180px)}
+.chat-messages{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.75rem}
+.chat-msg{display:flex;gap:.65rem;max-width:85%}
+.chat-msg.user{flex-direction:row-reverse;margin-left:auto}
+.chat-bubble{padding:.75rem 1rem;border-radius:12px;font-size:.875rem;line-height:1.6;white-space:pre-wrap}
+.chat-msg.user .chat-bubble{background:var(--accent);color:#000;border-radius:12px 12px 0 12px}
+.chat-msg.ai .chat-bubble{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:12px 12px 12px 0}
+.chat-avatar{width:30px;height:30px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;background:var(--bg3)}
+.chat-input-row{padding:1rem;border-top:1px solid var(--border);display:flex;gap:.75rem}
 
-/* ── SUPPLEMENT CARD ── */
-.supp-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
-  padding:1rem; cursor:pointer; transition:.2s; }
-.supp-card:hover { border-color:var(--accent); transform:translateY(-2px); box-shadow:0 4px 20px var(--accent-glow); }
-.supp-cat { font-size:.68rem; color:var(--accent); font-weight:600; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.4rem; }
-.supp-nom { font-size:.875rem; font-weight:600; margin-bottom:.3rem; line-height:1.3; }
-.supp-dose { font-size:.75rem; color:var(--text2); }
+/* SUPP */
+.supp-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1rem;cursor:pointer;transition:.2s}
+.supp-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.supp-cat{font-size:.68rem;color:var(--accent);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3rem}
+.supp-nom{font-size:.875rem;font-weight:600;margin-bottom:.3rem;line-height:1.3}
+.supp-dose{font-size:.75rem;color:var(--text2)}
 
-/* ── PATIENT CARD ── */
-.patient-row { display:flex; align-items:center; gap:1rem; padding:.75rem 1rem;
-  border-radius:8px; cursor:pointer; transition:.15s; border:1px solid transparent; }
-.patient-row:hover { background:var(--bg3); border-color:var(--border); }
-.patient-avatar { width:38px; height:38px; border-radius:50%; background:var(--accent-dim);
-  border:1px solid rgba(63,182,139,0.3); display:flex; align-items:center; justify-content:center;
-  font-weight:600; color:var(--accent); font-size:.9rem; flex-shrink:0; }
-.patient-info { flex:1; }
-.patient-name { font-weight:500; font-size:.9rem; }
-.patient-meta { font-size:.75rem; color:var(--text2); }
+/* DIVIDER */
+hr.divider{border:none;border-top:1px solid var(--border2);margin:1.25rem 0}
 
-/* ── CHAT ARIA/NOVA ── */
-.chat-wrap { display:flex; flex-direction:column; height:calc(100vh - 8rem); }
-.chat-messages { flex:1; overflow-y:auto; padding:1rem; display:flex; flex-direction:column; gap:.75rem; }
-.chat-msg { display:flex; gap:.65rem; max-width:85%; }
-.chat-msg.user { flex-direction:row-reverse; margin-left:auto; }
-.chat-bubble { padding:.75rem 1rem; border-radius:12px; font-size:.875rem; line-height:1.5; }
-.chat-msg.user .chat-bubble { background:var(--accent); color:#000; border-radius:12px 12px 0 12px; }
-.chat-msg.ai .chat-bubble { background:var(--bg3); border:1px solid var(--border); color:var(--text); border-radius:12px 12px 12px 0; }
-.chat-avatar { width:30px; height:30px; border-radius:50%; border:1px solid var(--border);
-  display:flex; align-items:center; justify-content:center; font-size:.9rem; flex-shrink:0; background:var(--bg3); }
-.chat-input-wrap { padding:1rem; border-top:1px solid var(--border); display:flex; gap:.75rem; }
+/* LOADING */
+.spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading{display:flex;align-items:center;justify-content:center;min-height:300px;gap:.75rem;color:var(--text2)}
+.empty{text-align:center;padding:3rem;color:var(--text2)}
+.empty-icon{font-size:2.5rem;margin-bottom:.75rem}
+.empty-title{font-size:1rem;font-weight:500;color:var(--text);margin-bottom:.3rem}
 
-/* ── AGENDA ── */
-.agenda-day { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:.75rem; overflow:hidden; }
-.agenda-day-header { padding:.65rem 1rem; background:var(--bg3); font-size:.8rem; font-weight:600; color:var(--text2); border-bottom:1px solid var(--border2); }
-.rdv-item { display:flex; align-items:center; gap:.75rem; padding:.65rem 1rem; border-bottom:1px solid var(--border2); }
-.rdv-item:last-child { border-bottom:none; }
-.rdv-time { font-size:.75rem; font-weight:600; color:var(--accent); min-width:50px; }
-.rdv-info { flex:1; }
-.rdv-title { font-size:.875rem; font-weight:500; }
-.rdv-patient { font-size:.75rem; color:var(--text2); }
+/* AGENDA */
+.rdv-item{display:flex;align-items:center;gap:.75rem;padding:.65rem 1rem;border-bottom:1px solid var(--border2)}
+.rdv-time{font-size:.75rem;font-weight:600;color:var(--accent);min-width:55px}
+.rdv-title{font-size:.875rem;font-weight:500}
+.rdv-patient{font-size:.75rem;color:var(--text2)}
+.agenda-day{background:var(--card);border:1px solid var(--border);border-radius:var(--r);margin-bottom:.75rem;overflow:hidden}
+.agenda-day-hdr{padding:.65rem 1rem;background:var(--bg3);font-size:.8rem;font-weight:600;color:var(--text2);border-bottom:1px solid var(--border2)}
 
-/* ── FACTURATION ── */
-.plan-card { background:var(--card); border:2px solid var(--accent); border-radius:var(--radius-lg); padding:1.5rem; text-align:center; }
-.plan-price { font-family:'Fraunces',serif; font-size:2.5rem; font-weight:600; color:var(--accent); }
-.plan-period { font-size:.875rem; color:var(--text2); }
-.plan-features { list-style:none; margin:1.25rem 0; text-align:left; }
-.plan-features li { padding:.4rem 0; font-size:.875rem; display:flex; gap:.5rem; }
-.plan-features li::before { content:'✓'; color:var(--accent); font-weight:700; flex-shrink:0; }
-
-/* ── LOADING ── */
-.loading { display:flex; align-items:center; justify-content:center; min-height:200px; color:var(--text2); gap:.75rem; }
-.spinner { width:20px; height:20px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; }
-@keyframes spin { to { transform:rotate(360deg); } }
-
-/* ── EMPTY ── */
-.empty { text-align:center; padding:3rem; color:var(--text2); }
-.empty-icon { font-size:2.5rem; margin-bottom:.75rem; }
-.empty-title { font-size:1rem; font-weight:500; color:var(--text); margin-bottom:.3rem; }
-.empty-sub { font-size:.85rem; }
-
-/* ── DIVIDER ── */
-.divider { border:none; border-top:1px solid var(--border2); margin:1rem 0; }
-
-/* ── NIVEAU EVIDENCE ── */
-.niveau-l1 { color:#3fb68b; }
-.niveau-l2 { color:#58a6ff; }
-.niveau-l3 { color:#d29922; }
-.niveau-l4 { color:#8b949e; }
+/* ALERT */
+.alert{padding:.75rem 1rem;border-radius:8px;font-size:.85rem;margin-bottom:1rem}
+.alert-error{background:rgba(248,81,73,0.1);border:1px solid rgba(248,81,73,0.3);color:var(--danger)}
+.alert-success{background:rgba(63,182,139,0.1);border:1px solid rgba(63,182,139,0.3);color:var(--accent)}
 </style>
 </head>
 <body>
-<div id="root"></div>
+<div id="root"><div class="loading"><div class="spinner"></div> Chargement NutriCore…</div></div>
 
-<script type="text/babel">
+<script>
 const SUPPLEMENTS = [
 {id:'vd3',nom:'Vitamine D3 (Cholécalciférol)',cat:'vitamine',sous:'Vitamines liposolubles',
  forme:'Cholécalciférol',dose:'2 000 – 10 000 UI/j selon carence',timing:'Avec repas gras le matin',
@@ -3260,1303 +3167,1046 @@ const SUPPLEMENTS = [
  labo:'Momentous, Thorne SR (Sport Recovery), Klean Athlete'}
 ];
 
-// ── CONFIG SUPABASE ──────────────────────────────────────────────
-const SUPABASE_URL = 'https://thzexgjugfruzzgzhefx.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoemV4Z2p1Z2ZydXp6Z3poZWZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NzIzMTUsImV4cCI6MjA5NTA0ODMxNX0.UxidaZCzgyfK9uoWPwGFThq8e2_X-EbkQrqs4ueBKzk';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-const ANTHROPIC_KEY = 'ANTHROPIC_API_KEY'; // Remplacer par la vraie clé
-const NC_VERSION = '7.0';
-const TARIF_MENSUEL = 49;
+// ── CONFIG ────────────────────────────────────────────────────────
+const SB_URL = 'https://thzexgjugfruzzgzhefx.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoemV4Z2p1Z2ZydXp6Z3poZWZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NzIzMTUsImV4cCI6MjA5NTA0ODMxNX0.UxidaZCzgyfK9uoWPwGFThq8e2_X-EbkQrqs4ueBKzk';
+const ANTHROPIC_KEY = 'ANTHROPIC_API_KEY';
+const NC_VERSION = '9.0';
+const TARIF = 49;
+const sb = supabase.createClient(SB_URL, SB_KEY);
 
-// ── ICÔNES SVG ───────────────────────────────────────────────────
-const icons = {
-  dashboard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
-  patients: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
-  supplements: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>',
-  consultations: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>',
-  agenda: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
-  facturation: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
-  aria: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
-  sav: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
-  settings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
-  logout: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>',
-  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
-  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
-  trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
-  edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
-  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>',
-  close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
-  send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>',
+// ── ÉTAT GLOBAL ───────────────────────────────────────────────────
+let STATE = {
+  user: null, therapist: null, patients: [], consultations: [],
+  view: 'dashboard', modal: null, loading: false
 };
 
-function Icon({name, size=16}) {
-  return React.createElement('span', {
-    style:{width:size,height:size,display:'inline-flex',alignItems:'center',justifyContent:'center',flexShrink:0},
-    dangerouslySetInnerHTML:{__html: icons[name]?.replace('viewBox','viewBox').replace(/width="[^"]*"|height="[^"]*"/g,'') || ''}
-  });
+// ── UTILITAIRES ───────────────────────────────────────────────────
+function $(id) { return document.getElementById(id); }
+function html(el, content) { if(el) el.innerHTML = content; }
+function show(id) { const el=$(id); if(el) el.style.display=''; }
+function hide(id) { const el=$(id); if(el) el.style.display='none'; }
+
+function toast(msg, type='success') {
+  const wrap = $('toast-wrap') || (() => {
+    const d = document.createElement('div');
+    d.id = 'toast-wrap'; d.className = 'toast-wrap';
+    document.body.appendChild(d); return d;
+  })();
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.textContent = (type==='success'?'✅ ':'❌ ') + msg;
+  t.onclick = () => t.remove();
+  wrap.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
 }
 
-
-// ── COMPOSANTS UTILITAIRES ────────────────────────────────────────
-
-function Toast({toasts, remove}) {
-  return React.createElement('div', {className:'toast-wrap'},
-    toasts.map(t => React.createElement('div', {
-      key:t.id, className:`toast toast-${t.type}`,
-      style:{cursor:'pointer'}, onClick:()=>remove(t.id)
-    }, t.type==='success'?'✅':'❌', ' ', t.msg))
-  );
+const ERREURS = {
+  'Invalid login credentials': 'Email ou mot de passe incorrect.',
+  'User already registered': 'Un compte existe déjà avec cet email.',
+  'Password should be at least 6 characters': 'Le mot de passe doit contenir au moins 6 caractères.',
+  'email rate limit exceeded': 'Trop de tentatives. Attendez quelques minutes.',
+  'For security purposes': 'Veuillez attendre quelques secondes avant de réessayer.',
+  'Database error': 'Erreur serveur. Réessayez.',
+};
+function tradErr(msg) {
+  for(const [k,v] of Object.entries(ERREURS)) { if(msg&&msg.includes(k)) return v; }
+  return msg || 'Une erreur est survenue.';
 }
 
-function Modal({show, onClose, title, children, footer, lg}) {
-  if(!show) return null;
-  return React.createElement('div', {className:'modal-overlay', onClick:e=>e.target===e.currentTarget&&onClose()},
-    React.createElement('div', {className:`modal ${lg?'modal-lg':''}`},
-      React.createElement('div', {className:'modal-header'},
-        React.createElement('div', {className:'modal-title'}, title),
-        React.createElement('button', {className:'modal-close', onClick:onClose},
-          React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.close}})
-        )
-      ),
-      React.createElement('div', {className:'modal-body'}, children),
-      footer && React.createElement('div', {className:'modal-footer'}, footer)
-    )
-  );
+function modal(content, size='') {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `<div class="modal ${size}">${content}</div>`;
+  overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
+  document.body.appendChild(overlay);
+  return overlay;
 }
 
-function Loading() {
-  return React.createElement('div', {className:'loading'},
-    React.createElement('div', {className:'spinner'}), 'Chargement…'
-  );
-}
-
-function Empty({icon, title, sub, action}) {
-  return React.createElement('div', {className:'empty'},
-    React.createElement('div', {className:'empty-icon'}, icon||'📭'),
-    React.createElement('div', {className:'empty-title'}, title),
-    sub && React.createElement('div', {className:'empty-sub'}, sub),
-    action && React.createElement('div', {style:{marginTop:'1rem'}}, action)
-  );
+function closeModal() {
+  document.querySelectorAll('.modal-overlay').forEach(m => m.remove());
 }
 
 // ── AUTH ──────────────────────────────────────────────────────────
-function AuthScreen({onLogin}) {
-  const [tab, setTab] = React.useState('login');
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [nom, setNom] = React.useState('');
-  const [prenom, setPrenom] = React.useState('');
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState('');
-  const [success, setSuccess] = React.useState('');
+function renderAuth(tab='login') {
+  html($('root'), `
+    <div class="auth-wrap">
+      <div class="auth-card">
+        <div class="auth-logo">
+          <div class="auth-logo-icon">🌿</div>
+          <div class="auth-logo-text">NutriCore</div>
+        </div>
+        <div class="auth-tabs">
+          <button class="auth-tab ${tab==='login'?'active':''}" onclick="renderAuth('login')">Connexion</button>
+          <button class="auth-tab ${tab==='register'?'active':''}" onclick="renderAuth('register')">Créer un compte</button>
+        </div>
+        <div id="auth-alert"></div>
+        ${tab==='login' ? `
+          <div class="form-group"><label class="form-label">Email professionnel</label>
+            <input class="form-input" id="auth-email" type="email" placeholder="vous@cabinet.com"></div>
+          <div class="form-group"><label class="form-label">Mot de passe</label>
+            <input class="form-input" id="auth-pwd" type="password" placeholder="••••••••"
+              onkeydown="if(event.key==='Enter')authSubmit('login')"></div>
+          <button class="btn btn-primary btn-lg btn-full" onclick="authSubmit('login')" id="auth-btn">Se connecter</button>
+          <div style="text-align:center;margin-top:.75rem">
+            <button style="background:none;border:none;color:var(--text2);font-size:.82rem;cursor:pointer;text-decoration:underline"
+              onclick="forgotPassword()">Mot de passe oublié ?</button>
+          </div>
+        ` : `
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+            <div class="form-group"><label class="form-label">Prénom</label>
+              <input class="form-input" id="auth-prenom" placeholder="Amandine"></div>
+            <div class="form-group"><label class="form-label">Nom</label>
+              <input class="form-input" id="auth-nom" placeholder="Martin"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Email professionnel</label>
+            <input class="form-input" id="auth-email" type="email" placeholder="vous@cabinet.com"></div>
+          <div class="form-group"><label class="form-label">Mot de passe (6 car. minimum)</label>
+            <input class="form-input" id="auth-pwd" type="password" placeholder="••••••••"></div>
+          <button class="btn btn-primary btn-lg btn-full" onclick="authSubmit('register')" id="auth-btn">Créer mon compte</button>
+        `}
+        <div style="margin-top:1.5rem;text-align:center;font-size:.78rem;color:var(--text3)">
+          🔒 Données hébergées en Europe · RGPD conforme
+        </div>
+      </div>
+    </div>
+  `);
+}
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setError(''); setSuccess('');
-    if(!email||!password){setError('Email et mot de passe requis');return;}
-    setLoading(true);
-    try {
-      if(tab==='login'){
-        const {data,error:err} = await sb.auth.signInWithPassword({email,password});
-        if(err) throw err;
-        onLogin(data.user);
-      } else {
-        const {data,error:err} = await sb.auth.signUp({
-          email, password,
-          options:{data:{nom,prenom}}
-        });
-        if(err) throw err;
-        if(data.user) {
-          // Mettre à jour le profil
-          await sb.from('therapists').update({nom,prenom}).eq('id',data.user.id);
-          setSuccess('Compte créé ! Vous pouvez vous connecter.');
-          setTab('login');
-        }
-      }
-    } catch(err) {
-      setError(err.message==='Invalid login credentials'?'Email ou mot de passe incorrect':err.message);
-    } finally { setLoading(false); }
+async function authSubmit(mode) {
+  const email = $('auth-email')?.value?.trim();
+  const pwd = $('auth-pwd')?.value;
+  const alertEl = $('auth-alert');
+  const btn = $('auth-btn');
+
+  function setAlert(msg, type='error') {
+    if(alertEl) alertEl.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
   }
 
-  return React.createElement('div', {className:'auth-wrap'},
-    React.createElement('div', {className:'auth-card'},
-      React.createElement('div', {className:'auth-logo'},
-        React.createElement('div', {className:'auth-logo-icon'}, '🌿'),
-        React.createElement('div', {className:'auth-logo-text'}, 'NutriCore')
-      ),
-      React.createElement('div', {className:'auth-tabs'},
-        React.createElement('button', {className:`auth-tab ${tab==='login'?'active':''}`,onClick:()=>setTab('login')}, 'Connexion'),
-        React.createElement('button', {className:`auth-tab ${tab==='register'?'active':''}`,onClick:()=>setTab('register')}, 'Créer un compte')
-      ),
-      error && React.createElement('div', {style:{background:'rgba(248,81,73,0.1)',border:'1px solid rgba(248,81,73,0.3)',borderRadius:'8px',padding:'.65rem .9rem',marginBottom:'1rem',fontSize:'.85rem',color:'#f85149'}}, error),
-      success && React.createElement('div', {style:{background:'rgba(63,182,139,0.1)',border:'1px solid rgba(63,182,139,0.3)',borderRadius:'8px',padding:'.65rem .9rem',marginBottom:'1rem',fontSize:'.85rem',color:'#3fb68b'}}, success),
-      React.createElement('form', {onSubmit:handleSubmit},
-        tab==='register' && React.createElement('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'.75rem',marginBottom:'1rem'}},
-          React.createElement('div', {className:'form-group',style:{marginBottom:0}},
-            React.createElement('label', {className:'form-label'}, 'Prénom'),
-            React.createElement('input', {className:'form-input',value:prenom,onChange:e=>setPrenom(e.target.value),placeholder:'Amandine'})
-          ),
-          React.createElement('div', {className:'form-group',style:{marginBottom:0}},
-            React.createElement('label', {className:'form-label'}, 'Nom'),
-            React.createElement('input', {className:'form-input',value:nom,onChange:e=>setNom(e.target.value),placeholder:'Martin'})
-          )
-        ),
-        React.createElement('div', {className:'form-group'},
-          React.createElement('label', {className:'form-label'}, 'Email professionnel'),
-          React.createElement('input', {className:'form-input',type:'email',value:email,onChange:e=>setEmail(e.target.value),placeholder:'vous@cabinet.com'})
-        ),
-        React.createElement('div', {className:'form-group'},
-          React.createElement('label', {className:'form-label'}, 'Mot de passe'),
-          React.createElement('input', {className:'form-input',type:'password',value:password,onChange:e=>setPassword(e.target.value),placeholder:'••••••••'})
-        ),
-        React.createElement('button', {className:'btn btn-primary btn-lg btn-full',type:'submit',disabled:loading},
-          loading ? React.createElement('div', {className:'spinner',style:{width:18,height:18,borderColor:'rgba(0,0,0,0.3)',borderTopColor:'#000'}}) : null,
-          tab==='login' ? 'Se connecter' : 'Créer mon compte'
-        )
-      ),
-      React.createElement('div', {style:{marginTop:'1.5rem',textAlign:'center',fontSize:'.8rem',color:'var(--text3)'}},
-        '🔒 Données hébergées en Europe · RGPD conforme'
-      )
-    )
-  );
+  if(!email||!pwd) { setAlert('Email et mot de passe requis'); return; }
+  if(btn) { btn.disabled=true; btn.textContent='…'; }
+
+  try {
+    if(mode==='login') {
+      const {data,error} = await sb.auth.signInWithPassword({email,password:pwd});
+      if(error) throw error;
+      await loadApp(data.user);
+    } else {
+      const prenom = $('auth-prenom')?.value?.trim()||'';
+      const nom = $('auth-nom')?.value?.trim()||'';
+      if(!prenom||!nom) { setAlert('Tous les champs sont requis'); return; }
+      if(pwd.length<6) { setAlert('Le mot de passe doit contenir au moins 6 caractères'); return; }
+      const {data,error} = await sb.auth.signUp({email,password:pwd,options:{data:{nom,prenom}}});
+      if(error) throw error;
+      if(data.user) {
+        await sb.from('therapists').update({nom,prenom}).eq('id',data.user.id);
+        const {data:ld,error:le} = await sb.auth.signInWithPassword({email,password:pwd});
+        if(le) throw le;
+        await loadApp(ld.user);
+      }
+    }
+  } catch(e) {
+    setAlert(tradErr(e.message));
+    if(btn) { btn.disabled=false; btn.textContent=mode==='login'?'Se connecter':'Créer mon compte'; }
+  }
+}
+
+async function forgotPassword() {
+  const email = $('auth-email')?.value?.trim();
+  const alertEl = $('auth-alert');
+  if(!email) { if(alertEl) alertEl.innerHTML='<div class="alert alert-error">Entrez votre email ci-dessus</div>'; return; }
+  try {
+    await sb.auth.resetPasswordForEmail(email);
+    if(alertEl) alertEl.innerHTML='<div class="alert alert-success">Email de réinitialisation envoyé !</div>';
+  } catch(e) {
+    if(alertEl) alertEl.innerHTML=`<div class="alert alert-error">${tradErr(e.message)}</div>`;
+  }
+}
+
+// ── CHARGEMENT APP ────────────────────────────────────────────────
+async function loadApp(user) {
+  STATE.user = user;
+  html($('root'), '<div class="loading"><div class="spinner"></div> Chargement de votre espace…</div>');
+  try {
+    const [{data:th},{data:ps},{data:cs}] = await Promise.all([
+      sb.from('therapists').select('*').eq('id',user.id).single(),
+      sb.from('patients').select('*').eq('therapist_id',user.id).order('created_at',{ascending:false}),
+      sb.from('consultations').select('*').eq('therapist_id',user.id).order('created_at',{ascending:false}),
+    ]);
+    STATE.therapist = th || {id:user.id,email:user.email};
+    STATE.patients = ps || [];
+    STATE.consultations = cs || [];
+    renderApp();
+  } catch(e) {
+    toast('Erreur de chargement','error');
+    renderAuth();
+  }
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  STATE = {user:null,therapist:null,patients:[],consultations:[],view:'dashboard',modal:null};
+  renderAuth();
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────
+function nav(view) {
+  STATE.view = view;
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.view === view);
+  });
+  const main = $('main-content');
+  if(main) renderView(main);
+}
+
+// ── APP SHELL ─────────────────────────────────────────────────────
+function renderApp() {
+  const th = STATE.therapist;
+  const initials = ((th?.prenom?.[0]||'')+(th?.nom?.[0]||th?.email?.[0]||'')).toUpperCase();
+  const navItems = [
+    {id:'dashboard',label:'Dashboard',icon:'📊'},
+    {id:'patients',label:'Patients',icon:'👥'},
+    {id:'supplements',label:'Suppléments',icon:'💊'},
+    {id:'consultations',label:'Consultations',icon:'📋'},
+    {id:'agenda',label:'Agenda',icon:'📅'},
+    {id:'nova',label:'Nova',icon:'⚙️'},
+    {id:'aria',label:'ARIA',icon:'📁'},
+    {id:'facturation',label:'Facturation',icon:'💳'},
+    {id:'sav',label:'Support',icon:'❓'},
+  ];
+
+  html($('root'), `
+    <div class="app">
+      <div class="sidebar">
+        <div class="sidebar-logo">
+          <div class="sidebar-logo-icon">🌿</div>
+          <div class="sidebar-logo-text">NutriCore</div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-label">Navigation</div>
+          ${navItems.map(item=>`
+            <div class="nav-item ${STATE.view===item.id?'active':''}" data-view="${item.id}" onclick="nav('${item.id}')">
+              <span>${item.icon}</span> ${item.label}
+            </div>
+          `).join('')}
+        </div>
+        <div class="sidebar-bottom">
+          <div class="user-card">
+            <div class="user-avatar">${initials||'?'}</div>
+            <div>
+              <div class="user-name">${th?.prenom?`${th.prenom} ${th.nom||''}`:th?.email||'Thérapeute'}</div>
+              <div class="user-role">${th?.specialite||'Naturopathe'}</div>
+            </div>
+          </div>
+          <div class="nav-item" style="color:var(--text3);margin-top:.25rem" onclick="logout()">
+            <span>🚪</span> Déconnexion
+          </div>
+        </div>
+      </div>
+      <div class="main" id="main-content"></div>
+    </div>
+    <div class="toast-wrap" id="toast-wrap"></div>
+  `);
+
+  renderView($('main-content'));
+}
+
+function renderView(container) {
+  if(!container) return;
+  switch(STATE.view) {
+    case 'dashboard': renderDashboard(container); break;
+    case 'patients': renderPatients(container); break;
+    case 'supplements': renderSupplements(container); break;
+    case 'consultations': renderConsultations(container); break;
+    case 'agenda': renderAgenda(container); break;
+    case 'nova': renderChat(container,'nova'); break;
+    case 'aria': renderChat(container,'aria'); break;
+    case 'facturation': renderFacturation(container); break;
+    case 'sav': renderSAV(container); break;
+    default: renderDashboard(container);
+  }
 }
 
 
 // ── DASHBOARD ─────────────────────────────────────────────────────
-function Dashboard({therapist, patients, consultations, onNav, addToast}) {
-  const today = new Date();
-  const fmtDate = d => d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  const recentConsults = [...consultations].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,5);
-
+function renderDashboard(el) {
+  const th = STATE.therapist;
+  const prenom = th?.prenom || th?.email?.split('@')[0] || '';
+  const today = new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   const stats = [
-    {label:'Patients suivis', value:patients.length, sub:'Total actifs', icon:'👥'},
-    {label:'Consultations', value:consultations.length, sub:'Ce mois', icon:'📋'},
-    {label:'Protocoles actifs', value:Math.max(0,consultations.filter(c=>c.protocole?.length>0).length), sub:'En cours', icon:'💊'},
-    {label:'Abonnement', value:`${TARIF_MENSUEL} CHF`, sub:'Par mois', icon:'💳'},
+    {label:'Patients suivis',value:STATE.patients.length,sub:'Total actifs',icon:'👥'},
+    {label:'Consultations',value:STATE.consultations.length,sub:'Total',icon:'📋'},
+    {label:'Protocoles',value:STATE.consultations.filter(c=>c.protocole?.length>0).length,sub:'Avec protocole',icon:'💊'},
+    {label:'Abonnement',value:`${TARIF} CHF`,sub:'Par mois',icon:'💳'},
   ];
+  const recents = [...STATE.consultations].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,5);
 
-  return React.createElement('div', null,
-    React.createElement('div', {className:'page-header'},
-      React.createElement('div', null,
-        React.createElement('div', {className:'page-title'}, `Bonjour ${therapist?.prenom||therapist?.email?.split('@')[0]||''} 👋`),
-        React.createElement('div', {className:'page-sub'}, fmtDate(today))
-      ),
-      React.createElement('button', {className:'btn btn-primary', onClick:()=>onNav('patients')},
-        React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.plus}}), ' Nouveau patient'
-      )
-    ),
-    React.createElement('div', {className:'grid-4', style:{marginBottom:'1.5rem'}},
-      stats.map((s,i) => React.createElement('div', {key:i, className:'stat-card'},
-        React.createElement('div', {className:'stat-icon'}, s.icon),
-        React.createElement('div', {className:'stat-label'}, s.label),
-        React.createElement('div', {className:'stat-value'}, s.value),
-        React.createElement('div', {className:'stat-sub'}, s.sub)
-      ))
-    ),
-    React.createElement('div', {className:'grid-2'},
-      React.createElement('div', {className:'card'},
-        React.createElement('div', {className:'card-title'}, '🕐 Consultations récentes'),
-        recentConsults.length===0
-          ? React.createElement(Empty, {icon:'📋',title:'Aucune consultation',sub:'Commencez par ajouter un patient'})
-          : React.createElement('div', null,
-              recentConsults.map(c => React.createElement('div', {key:c.id, style:{padding:'.6rem 0',borderBottom:'1px solid var(--border2)'}},
-                React.createElement('div', {style:{fontSize:'.875rem',fontWeight:500}}, c.titre||'Consultation'),
-                React.createElement('div', {style:{fontSize:'.75rem',color:'var(--text2)'}},
-                  patients.find(p=>p.id===c.patient_id)?.prenom+' '+patients.find(p=>p.id===c.patient_id)?.nom || 'Patient',
-                  ' · ', new Date(c.created_at).toLocaleDateString('fr-FR')
-                )
-              ))
-            )
-      ),
-      React.createElement('div', {className:'card'},
-        React.createElement('div', {className:'card-title'}, '📚 Accès rapide'),
-        React.createElement('div', {style:{display:'flex',flexDirection:'column',gap:'.5rem'}},
-          [{label:'Base de données suppléments',icon:'💊',view:'supplements'},
-           {label:'Nouvelle consultation',icon:'📋',view:'consultations'},
-           {label:'Agenda',icon:'📅',view:'agenda'},
-           {label:'ARIA / Nova — Assistant IA',icon:'🤖',view:'aria'}].map(item =>
-            React.createElement('button', {key:item.view, className:'btn btn-secondary', style:{justifyContent:'flex-start'}, onClick:()=>onNav(item.view)},
-              item.icon, ' ', item.label
-            )
-          )
-        )
-      )
-    )
-  );
+  html(el, `
+    <div class="page-header">
+      <div>
+        <div class="page-title">Bonjour ${prenom} 👋</div>
+        <div class="page-sub">${today}</div>
+      </div>
+      <button class="btn btn-primary" onclick="nav('patients')">＋ Nouveau patient</button>
+    </div>
+    <div class="grid-4" style="margin-bottom:1.5rem">
+      ${stats.map(s=>`
+        <div class="stat-card">
+          <div class="stat-icon">${s.icon}</div>
+          <div class="stat-label">${s.label}</div>
+          <div class="stat-value">${s.value}</div>
+          <div class="stat-sub">${s.sub}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">🕐 Consultations récentes</div>
+        ${recents.length===0 ? '<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Aucune consultation</div></div>' :
+          recents.map(c => {
+            const p = STATE.patients.find(x=>x.id===c.patient_id);
+            return `<div style="padding:.6rem 0;border-bottom:1px solid var(--border2)">
+              <div style="font-size:.875rem;font-weight:500">${c.titre||'Consultation'}</div>
+              <div style="font-size:.75rem;color:var(--text2)">${p?`${p.prenom} ${p.nom}`:'—'} · ${new Date(c.created_at).toLocaleDateString('fr-FR')}</div>
+            </div>`;
+          }).join('')
+        }
+      </div>
+      <div class="card">
+        <div class="card-title">📚 Accès rapide</div>
+        <div style="display:flex;flex-direction:column;gap:.5rem">
+          ${[['💊','Base suppléments','supplements'],['📋','Nouvelle consultation','consultations'],['📅','Agenda','agenda'],['⚙️','Nova — Support technique','nova'],['📁','ARIA — Gestion cabinet','aria']].map(([icon,label,view])=>
+            `<button class="btn btn-secondary" style="justify-content:flex-start" onclick="nav('${view}')">${icon} ${label}</button>`
+          ).join('')}
+        </div>
+      </div>
+    </div>
+  `);
 }
 
 // ── PATIENTS ───────────────────────────────────────────────────────
-function Patients({therapist, patients, setPatients, addToast}) {
-  const [search, setSearch] = React.useState('');
-  const [showModal, setShowModal] = React.useState(false);
-  const [editPatient, setEditPatient] = React.useState(null);
-  const [form, setForm] = React.useState({nom:'',prenom:'',email:'',telephone:'',date_naissance:'',sexe:'',profil:'general',notes:''});
-  const [saving, setSaving] = React.useState(false);
-
-  const filtered = patients.filter(p =>
-    `${p.nom} ${p.prenom} ${p.email}`.toLowerCase().includes(search.toLowerCase())
+function renderPatients(el) {
+  const search = STATE._patientSearch || '';
+  const filtered = STATE.patients.filter(p =>
+    `${p.nom} ${p.prenom} ${p.email||''}`.toLowerCase().includes(search.toLowerCase())
   );
 
-  function openNew() { setEditPatient(null); setForm({nom:'',prenom:'',email:'',telephone:'',date_naissance:'',sexe:'',profil:'general',notes:''}); setShowModal(true); }
-  function openEdit(p) { setEditPatient(p); setForm({nom:p.nom,prenom:p.prenom,email:p.email||'',telephone:p.telephone||'',date_naissance:p.date_naissance||'',sexe:p.sexe||'',profil:p.profil||'general',notes:p.notes||''}); setShowModal(true); }
-
-  async function save() {
-    if(!form.nom||!form.prenom){addToast('Nom et prénom requis','error');return;}
-    setSaving(true);
-    try {
-      if(editPatient) {
-        const {error} = await sb.from('patients').update({...form,updated_at:new Date().toISOString()}).eq('id',editPatient.id);
-        if(error) throw error;
-        setPatients(ps=>ps.map(p=>p.id===editPatient.id?{...p,...form}:p));
-        addToast('Patient modifié','success');
-      } else {
-        const {data,error} = await sb.from('patients').insert([{...form,therapist_id:therapist.id}]).select().single();
-        if(error) throw error;
-        setPatients(ps=>[data,...ps]);
-        addToast('Patient ajouté','success');
-      }
-      setShowModal(false);
-    } catch(e){addToast(e.message,'error');}
-    finally{setSaving(false);}
-  }
-
-  async function deletePatient(p) {
-    if(!confirm(`Supprimer ${p.prenom} ${p.nom} ?`)) return;
-    const {error} = await sb.from('patients').delete().eq('id',p.id);
-    if(!error){ setPatients(ps=>ps.filter(x=>x.id!==p.id)); addToast('Patient supprimé','success'); }
-  }
-
-  const profils = ['general','sportif','femme_enceinte','seniorite','pediatrie','vegetarien','vegane'];
-  const sexes = ['','Femme','Homme','Non précisé'];
-
-  return React.createElement('div', null,
-    React.createElement('div', {className:'page-header'},
-      React.createElement('div', null,
-        React.createElement('div', {className:'page-title'}, 'Patients'),
-        React.createElement('div', {className:'page-sub'}, `${patients.length} patient${patients.length>1?'s':''} suivi${patients.length>1?'s':''}`)
-      ),
-      React.createElement('button', {className:'btn btn-primary', onClick:openNew},
-        React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.plus}}), ' Nouveau patient'
-      )
-    ),
-    React.createElement('div', {className:'search-bar'},
-      React.createElement('div', {className:'search-input-wrap'},
-        React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.search}}),
-        React.createElement('input', {className:'form-input',placeholder:'Rechercher un patient…',value:search,onChange:e=>setSearch(e.target.value)})
-      )
-    ),
-    filtered.length===0
-      ? React.createElement(Empty, {icon:'👥',title:'Aucun patient',sub:'Ajoutez votre premier patient',
-          action:React.createElement('button',{className:'btn btn-primary',onClick:openNew},React.createElement('span',{dangerouslySetInnerHTML:{__html:icons.plus}}),' Nouveau patient')})
-      : React.createElement('div', {className:'card', style:{padding:'.5rem'}},
-          filtered.map(p => React.createElement('div', {key:p.id, className:'patient-row'},
-            React.createElement('div', {className:'patient-avatar'}, (p.prenom?.[0]||'')+(p.nom?.[0]||'')),
-            React.createElement('div', {className:'patient-info'},
-              React.createElement('div', {className:'patient-name'}, `${p.prenom} ${p.nom}`),
-              React.createElement('div', {className:'patient-meta'},
-                [p.email,p.telephone,p.profil].filter(Boolean).join(' · ')
-              )
-            ),
-            React.createElement('div', {style:{display:'flex',gap:'.5rem'}},
-              React.createElement('button', {className:'btn btn-secondary btn-sm', onClick:()=>openEdit(p)},
-                React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.edit}})
-              ),
-              React.createElement('button', {className:'btn btn-danger btn-sm', onClick:()=>deletePatient(p)},
-                React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.trash}})
-              )
-            )
-          ))
-        ),
-    React.createElement(Modal, {show:showModal, onClose:()=>setShowModal(false), title:editPatient?'Modifier le patient':'Nouveau patient',
-      footer:React.createElement(React.Fragment,null,
-        React.createElement('button',{className:'btn btn-secondary',onClick:()=>setShowModal(false)},'Annuler'),
-        React.createElement('button',{className:'btn btn-primary',onClick:save,disabled:saving},saving?'Enregistrement…':'Enregistrer')
-      )},
-      React.createElement('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'.75rem'}},
-        React.createElement('div', {className:'form-group'},
-          React.createElement('label', {className:'form-label'}, 'Prénom *'),
-          React.createElement('input', {className:'form-input',value:form.prenom,onChange:e=>setForm(f=>({...f,prenom:e.target.value})),placeholder:'Prénom'})
-        ),
-        React.createElement('div', {className:'form-group'},
-          React.createElement('label', {className:'form-label'}, 'Nom *'),
-          React.createElement('input', {className:'form-input',value:form.nom,onChange:e=>setForm(f=>({...f,nom:e.target.value})),placeholder:'Nom'}),
-        ),
-        React.createElement('div', {className:'form-group'},
-          React.createElement('label', {className:'form-label'}, 'Email'),
-          React.createElement('input', {className:'form-input',type:'email',value:form.email,onChange:e=>setForm(f=>({...f,email:e.target.value})),placeholder:'email@exemple.com'})
-        ),
-        React.createElement('div', {className:'form-group'},
-          React.createElement('label', {className:'form-label'}, 'Téléphone'),
-          React.createElement('input', {className:'form-input',value:form.telephone,onChange:e=>setForm(f=>({...f,telephone:e.target.value})),placeholder:'+41 ...'})
-        ),
-        React.createElement('div', {className:'form-group'},
-          React.createElement('label', {className:'form-label'}, 'Date de naissance'),
-          React.createElement('input', {className:'form-input',type:'date',value:form.date_naissance,onChange:e=>setForm(f=>({...f,date_naissance:e.target.value}))})
-        ),
-        React.createElement('div', {className:'form-group'},
-          React.createElement('label', {className:'form-label'}, 'Sexe'),
-          React.createElement('select', {className:'form-input',value:form.sexe,onChange:e=>setForm(f=>({...f,sexe:e.target.value}))},
-            sexes.map(s=>React.createElement('option',{key:s,value:s},s||'Non précisé'))
-          )
-        ),
-        React.createElement('div', {className:'form-group',style:{gridColumn:'1/-1'}},
-          React.createElement('label', {className:'form-label'}, 'Profil clinique'),
-          React.createElement('select', {className:'form-input',value:form.profil,onChange:e=>setForm(f=>({...f,profil:e.target.value}))},
-            profils.map(p=>React.createElement('option',{key:p,value:p},p.charAt(0).toUpperCase()+p.slice(1).replace(/_/g,' ')))
-          )
-        ),
-        React.createElement('div', {className:'form-group',style:{gridColumn:'1/-1'}},
-          React.createElement('label', {className:'form-label'}, 'Notes'),
-          React.createElement('textarea', {className:'form-input',value:form.notes,onChange:e=>setForm(f=>({...f,notes:e.target.value})),placeholder:'Antécédents, allergies, traitements en cours…'})
-        )
-      )
-    )
-  );
+  html(el, `
+    <div class="page-header">
+      <div>
+        <div class="page-title">Patients</div>
+        <div class="page-sub">${STATE.patients.length} patient${STATE.patients.length>1?'s':''} suivi${STATE.patients.length>1?'s':''}</div>
+      </div>
+      <button class="btn btn-primary" onclick="openPatientModal()">＋ Nouveau patient</button>
+    </div>
+    <div style="display:flex;gap:.75rem;margin-bottom:1.25rem">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="form-input" placeholder="Rechercher un patient…" value="${search}"
+          oninput="STATE._patientSearch=this.value;renderView($('main-content'))">
+      </div>
+    </div>
+    ${filtered.length===0 ? `
+      <div class="empty">
+        <div class="empty-icon">👥</div>
+        <div class="empty-title">Aucun patient</div>
+        <div style="margin-top:1rem"><button class="btn btn-primary" onclick="openPatientModal()">＋ Nouveau patient</button></div>
+      </div>
+    ` : `
+      <div class="card" style="padding:.5rem">
+        ${filtered.map(p=>`
+          <div class="patient-row">
+            <div class="patient-avatar">${(p.prenom?.[0]||'')+(p.nom?.[0]||'')}</div>
+            <div style="flex:1">
+              <div style="font-weight:500">${p.prenom} ${p.nom}</div>
+              <div style="font-size:.75rem;color:var(--text2)">${[p.email,p.telephone,p.profil].filter(Boolean).join(' · ')}</div>
+            </div>
+            <div style="display:flex;gap:.5rem">
+              <button class="btn btn-secondary btn-sm" onclick="openPatientModal('${p.id}')">✏️</button>
+              <button class="btn btn-danger btn-sm" onclick="deletePatient('${p.id}')">🗑️</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `}
+  `);
 }
 
-
-// ── CONSULTATIONS v8 avec anamnèse complète ───────────────────────
-const PATTERNS = [
-  {id:'anemie', label:'Anémie / carence en fer', color:'#e74c3c',
-   symptomes:['Fatigue chronique dès le matin','Fatigue mentale chronique','Chute de cheveux diffuse','Palpitations / tachycardie','Essoufflement à l\'effort','Sensibilité au froid'],
-   seuil:2, carences:['Fer bisglycinate ou Sideral','B12 méthylcobalamine','Folates B9 (5-MTHF)']},
-  {id:'thyroide', label:'Dysfonction thyroïdienne', color:'#e67e22',
-   symptomes:['TSH élevée (> 2,5 mUI/L)','Prise de poids inexpliquée','Sourcils clairsemés','Frilosité excessive','Constipation (< 1 selle/j)','Fatigue matinale persistante'],
-   seuil:2, carences:['Iode (150–300 µg/j)','Zinc (25 mg/j)','Sélénium (100–200 µg/j)','Ashwagandha KSM-66']},
-  {id:'surrenales', label:'Épuisement surrénalien', color:'#f39c12',
-   symptomes:['Coup de barre après les repas','Burn-out / épuisement émotionnel','Anxiété généralisée','Hypoglycémie réactionnelle','Réveil nocturne 2h-4h','Difficultés de concentration'],
-   seuil:2, carences:['Magnésium bisglycinate (400 mg/j)','Vitamine C (1g/j)','Ashwagandha KSM-66','Rhodiola rosea']},
-  {id:'inflammation', label:'Inflammation chronique', color:'#e74c3c',
-   symptomes:['Douleurs articulaires diffuses','Fatigue post-prandiale','Ballonnements chroniques','Troubles de peau (eczéma, psoriasis)','Sinusites à répétition','Brouillard mental'],
-   seuil:2, carences:['Oméga-3 EPA+DHA (2g/j)','Curcumine (500mg/j)','Vitamine D3 (5000 UI/j)','Quercétine']},
-  {id:'dysbiose', label:'Dysbiose intestinale', color:'#27ae60',
-   symptomes:['Ballonnements après chaque repas','Transit irrégulier','Candidose récidivante','Intolérances alimentaires multiples','Fatigue post-prandiale','Dermatite / eczéma'],
-   seuil:2, carences:['Probiotiques multi-souches','L-Glutamine (5g/j)','Zinc carnosine','Berbérine']},
-  {id:'sommeil', label:'Troubles du sommeil', color:'#2980b9',
-   symptomes:['Difficultés d\'endormissement','Réveils nocturnes fréquents','Sommeil non réparateur','Fatigue au réveil','Tension musculaire le soir'],
-   seuil:2, carences:['Magnésium bisglycinate (300mg soir)','Mélatonine (0,5-1mg)','L-Théanine (200mg)','Valériane']},
-  {id:'stress_oxydatif', label:'Stress oxydatif', color:'#8e44ad',
-   symptomes:['Vieillissement prématuré','Fatigue chronique inexpliquée','Infections fréquentes','Mauvaise récupération sportive','Troubles cognitifs'],
-   seuil:2, carences:['CoQ10 (100-300 mg/j)','N-Acétyl Cystéine','Resvératrol','Acide alpha-lipoïque']},
-  {id:'carence_vd', label:'Carence Vitamine D', color:'#f1c40f',
-   symptomes:['Fatigue hivernale','Infections respiratoires fréquentes','Douleurs musculaires diffuses','Déprime saisonnière','Troubles du sommeil'],
-   seuil:2, carences:['Vitamine D3 (5000-10000 UI/j)','Vitamine K2 MK7 (100 µg/j)','Magnésium (cofacteur)']},
-];
-
-function Consultations({therapist, patients, consultations, setConsultations, addToast}) {
-  const [showModal, setShowModal] = React.useState(false);
-  const [saving, setSaving] = React.useState(false);
-  const [searchSupp, setSearchSupp] = React.useState('');
-  const [checkedSymptomes, setCheckedSymptomes] = React.useState({});
-  const [form, setForm] = React.useState({
-    patient_id:'', titre:'', type_consultation:'Bilan initial',
-    profil_patient:'general', motif:'', antecedents:'',
-    medicaments:'', allergies:'', objectifs:'',
-    protocole:[], notes:''
-  });
-
-  const types = ['Bilan initial','Suivi mensuel','Suivi trimestriel','Urgence','Téléconsultation'];
+function openPatientModal(id) {
+  const p = id ? STATE.patients.find(x=>x.id===id) : null;
   const profils = ['general','sportif','femme_enceinte','seniorite','pediatrie','vegetarien','vegane'];
+  const overlay = modal(`
+    <div class="modal-header">
+      <div class="modal-title">${p?'Modifier le patient':'Nouveau patient'}</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="patient-alert"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+        <div class="form-group"><label class="form-label">Prénom *</label>
+          <input class="form-input" id="p-prenom" value="${p?.prenom||''}" placeholder="Prénom"></div>
+        <div class="form-group"><label class="form-label">Nom *</label>
+          <input class="form-input" id="p-nom" value="${p?.nom||''}" placeholder="Nom"></div>
+        <div class="form-group"><label class="form-label">Email</label>
+          <input class="form-input" id="p-email" type="email" value="${p?.email||''}" placeholder="email@exemple.com"></div>
+        <div class="form-group"><label class="form-label">Téléphone</label>
+          <input class="form-input" id="p-tel" value="${p?.telephone||''}" placeholder="+41..."></div>
+        <div class="form-group"><label class="form-label">Date de naissance</label>
+          <input class="form-input" id="p-dob" type="date" value="${p?.date_naissance||''}"></div>
+        <div class="form-group"><label class="form-label">Sexe</label>
+          <select class="form-input" id="p-sexe">
+            ${['','Femme','Homme','Non précisé'].map(s=>`<option value="${s}" ${p?.sexe===s?'selected':''}>${s||'Non précisé'}</option>`).join('')}
+          </select></div>
+        <div class="form-group" style="grid-column:1/-1"><label class="form-label">Profil clinique</label>
+          <select class="form-input" id="p-profil">
+            ${profils.map(pr=>`<option value="${pr}" ${(p?.profil||'general')===pr?'selected':''}>${pr.charAt(0).toUpperCase()+pr.slice(1).replace(/_/g,' ')}</option>`).join('')}
+          </select></div>
+        <div class="form-group" style="grid-column:1/-1"><label class="form-label">Notes</label>
+          <textarea class="form-input" id="p-notes" placeholder="Antécédents, allergies, traitements…">${p?.notes||''}</textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="savePatient('${id||''}')">Enregistrer</button>
+    </div>
+  `);
+}
 
-  // Calcul du score bilan
-  const score = React.useMemo(()=>{
-    let total = 0, max = 0;
-    PATTERNS.forEach(p => {
-      max += p.symptomes.length;
-      p.symptomes.forEach(s => { if(checkedSymptomes[s]) total++; });
-    });
-    return max > 0 ? Math.round((total/max)*100) : 0;
-  },[checkedSymptomes]);
+async function savePatient(id) {
+  const data = {
+    prenom: $('p-prenom')?.value?.trim(),
+    nom: $('p-nom')?.value?.trim(),
+    email: $('p-email')?.value?.trim(),
+    telephone: $('p-tel')?.value?.trim(),
+    date_naissance: $('p-dob')?.value||null,
+    sexe: $('p-sexe')?.value,
+    profil: $('p-profil')?.value,
+    notes: $('p-notes')?.value?.trim(),
+  };
+  const alertEl = $('patient-alert');
+  if(!data.prenom||!data.nom) { if(alertEl) alertEl.innerHTML='<div class="alert alert-error">Nom et prénom requis</div>'; return; }
 
-  // Patterns détectés
-  const patternsDetectes = PATTERNS.filter(p => {
-    const count = p.symptomes.filter(s=>checkedSymptomes[s]).length;
-    return count >= p.seuil;
-  });
-
-  function toggleSymptome(s) {
-    setCheckedSymptomes(prev => ({...prev, [s]: !prev[s]}));
-  }
-
-  function toggleSupp(s) {
-    setForm(f => {
-      const exists = f.protocole.find(x=>x.id===s.id);
-      return {...f, protocole: exists ? f.protocole.filter(x=>x.id!==s.id) : [...f.protocole, {id:s.id,nom:s.nom,dose:s.dose}]};
-    });
-  }
-
-  const filteredSupp = SUPPLEMENTS.filter(s =>
-    searchSupp.length > 1 && `${s.nom} ${s.indications}`.toLowerCase().includes(searchSupp.toLowerCase())
-  ).slice(0,6);
-
-  function openNew() {
-    setForm({patient_id:'',titre:'',type_consultation:'Bilan initial',profil_patient:'general',motif:'',antecedents:'',medicaments:'',allergies:'',objectifs:'',protocole:[],notes:''});
-    setCheckedSymptomes({});
-    setShowModal(true);
-  }
-
-  async function save() {
-    if(!form.patient_id){addToast('Sélectionnez un patient','error');return;}
-    setSaving(true);
-    try {
-      const {data,error} = await sb.from('consultations').insert([{
-        ...form,
-        therapist_id: therapist.id,
-        bilan: {symptomes: checkedSymptomes, score, patternsDetectes: patternsDetectes.map(p=>p.id)},
-        date_consultation: new Date().toISOString()
-      }]).select().single();
+  try {
+    if(id) {
+      const {error} = await sb.from('patients').update({...data,updated_at:new Date().toISOString()}).eq('id',id);
       if(error) throw error;
-      setConsultations(cs=>[data,...cs]);
-      addToast('Consultation enregistrée ✅','success');
-      setShowModal(false);
-    } catch(e){addToast(e.message,'error');}
-    finally{setSaving(false);}
-  }
-
-  const sorted = [...consultations].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
-
-  return React.createElement('div', null,
-    React.createElement('div', {className:'page-header'},
-      React.createElement('div', null,
-        React.createElement('div', {className:'page-title'}, 'Consultations'),
-        React.createElement('div', {className:'page-sub'}, `${consultations.length} consultation${consultations.length>1?'s':''}`)
-      ),
-      React.createElement('button', {className:'btn btn-primary', onClick:openNew},
-        React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.plus}}), ' Nouvelle consultation'
-      )
-    ),
-
-    consultations.length===0
-      ? React.createElement(Empty, {icon:'📋',title:'Aucune consultation',sub:'Créez votre première consultation',
-          action:React.createElement('button',{className:'btn btn-primary',onClick:openNew},'+ Nouvelle consultation')})
-      : React.createElement('div', {className:'table-wrap'},
-          React.createElement('table', {className:'table'},
-            React.createElement('thead', null,
-              React.createElement('tr', null, ['Patient','Type','Score bilan','Protocole','Date'].map(h=>React.createElement('th',{key:h},h)))
-            ),
-            React.createElement('tbody', null,
-              sorted.map(c => {
-                const p = patients.find(x=>x.id===c.patient_id);
-                const score = c.bilan?.score || 0;
-                return React.createElement('tr', {key:c.id},
-                  React.createElement('td', null, p?`${p.prenom} ${p.nom}`:'—'),
-                  React.createElement('td', null, c.type_consultation||'Consultation'),
-                  React.createElement('td', null,
-                    React.createElement('div', {style:{display:'flex',alignItems:'center',gap:'.5rem'}},
-                      React.createElement('div', {style:{flex:1,height:6,background:'var(--bg3)',borderRadius:3,overflow:'hidden',maxWidth:80}},
-                        React.createElement('div', {style:{width:`${score}%`,height:'100%',background:`hsl(${score},70%,50%)`,borderRadius:3}})
-                      ),
-                      React.createElement('span', {style:{fontSize:'.75rem',color:'var(--text2)'}}, `${score}%`)
-                    )
-                  ),
-                  React.createElement('td', null,
-                    (c.protocole||[]).length>0
-                      ? React.createElement('span', {className:'badge badge-green'}, `${c.protocole.length} supplément${c.protocole.length>1?'s':''}`)
-                      : React.createElement('span', {className:'badge badge-gray'}, '—')
-                  ),
-                  React.createElement('td', null, new Date(c.created_at).toLocaleDateString('fr-FR'))
-                );
-              })
-            )
-          )
-        ),
-
-    React.createElement(Modal, {show:showModal, onClose:()=>setShowModal(false), title:'Nouvelle consultation', lg:true,
-      footer:React.createElement(React.Fragment,null,
-        React.createElement('button',{className:'btn btn-secondary',onClick:()=>setShowModal(false)},'Annuler'),
-        React.createElement('button',{className:'btn btn-primary',onClick:save,disabled:saving},saving?'Enregistrement…':'Enregistrer la consultation')
-      )},
-
-      // ── Section 1 : Identification
-      React.createElement('div', {style:{marginBottom:'1.25rem'}},
-        React.createElement('div', {className:'card-title'}, '👤 Identification du patient'),
-        React.createElement('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'.75rem'}},
-          React.createElement('div', {className:'form-group'},
-            React.createElement('label', {className:'form-label'}, 'Patient *'),
-            React.createElement('select', {className:'form-input',value:form.patient_id,onChange:e=>setForm(f=>({...f,patient_id:e.target.value}))},
-              React.createElement('option', {value:''}, 'Sélectionner…'),
-              patients.map(p=>React.createElement('option',{key:p.id,value:p.id},`${p.prenom} ${p.nom}`))
-            )
-          ),
-          React.createElement('div', {className:'form-group'},
-            React.createElement('label', {className:'form-label'}, 'Type de consultation'),
-            React.createElement('select', {className:'form-input',value:form.type_consultation,onChange:e=>setForm(f=>({...f,type_consultation:e.target.value}))},
-              types.map(t=>React.createElement('option',{key:t,value:t},t))
-            )
-          ),
-          React.createElement('div', {className:'form-group'},
-            React.createElement('label', {className:'form-label'}, 'Profil patient'),
-            React.createElement('select', {className:'form-input',value:form.profil_patient,onChange:e=>setForm(f=>({...f,profil_patient:e.target.value}))},
-              profils.map(p=>React.createElement('option',{key:p,value:p},p.charAt(0).toUpperCase()+p.slice(1).replace(/_/g,' ')))
-            )
-          )
-        ),
-        React.createElement('div', {className:'form-group'},
-          React.createElement('label', {className:'form-label'}, 'Titre de la consultation'),
-          React.createElement('input', {className:'form-input',value:form.titre,onChange:e=>setForm(f=>({...f,titre:e.target.value})),placeholder:'Ex: Bilan initial — Fatigue chronique'})
-        )
-      ),
-
-      React.createElement('hr', {className:'divider'}),
-
-      // ── Section 2 : Anamnèse
-      React.createElement('div', {style:{marginBottom:'1.25rem'}},
-        React.createElement('div', {className:'card-title'}, '📋 Anamnèse'),
-        React.createElement('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'.75rem'}},
-          React.createElement('div', {className:'form-group'},
-            React.createElement('label', {className:'form-label'}, 'Motif principal de consultation'),
-            React.createElement('textarea', {className:'form-input',style:{minHeight:70},value:form.motif,onChange:e=>setForm(f=>({...f,motif:e.target.value})),placeholder:'Fatigue chronique, troubles du sommeil, prise de poids…'})
-          ),
-          React.createElement('div', {className:'form-group'},
-            React.createElement('label', {className:'form-label'}, 'Antécédents & pathologies connues'),
-            React.createElement('textarea', {className:'form-input',style:{minHeight:70},value:form.antecedents,onChange:e=>setForm(f=>({...f,antecedents:e.target.value})),placeholder:'Hypothyroïdie, diabète T2, SOPK, endométriose…'})
-          ),
-          React.createElement('div', {className:'form-group'},
-            React.createElement('label', {className:'form-label'}, 'Médicaments & suppléments en cours'),
-            React.createElement('textarea', {className:'form-input',style:{minHeight:70},value:form.medicaments,onChange:e=>setForm(f=>({...f,medicaments:e.target.value})),placeholder:'Lévothyrox 50µg/j, pilule, metformine…'})
-          ),
-          React.createElement('div', {className:'form-group'},
-            React.createElement('label', {className:'form-label'}, 'Allergies & intolérances'),
-            React.createElement('input', {className:'form-input',value:form.allergies,onChange:e=>setForm(f=>({...f,allergies:e.target.value})),placeholder:'Gluten, lactose, arachides, nickel, aspirine…'})
-          ),
-          React.createElement('div', {className:'form-group',style:{gridColumn:'1/-1'}},
-            React.createElement('label', {className:'form-label'}, 'Objectifs thérapeutiques'),
-            React.createElement('input', {className:'form-input',value:form.objectifs,onChange:e=>setForm(f=>({...f,objectifs:e.target.value})),placeholder:'Retrouver de l\'énergie, améliorer le sommeil, perdre 5kg…'})
-          )
-        )
-      ),
-
-      React.createElement('hr', {className:'divider'}),
-
-      // ── Section 3 : Bilan symptomatique
-      React.createElement('div', {style:{marginBottom:'1.25rem'}},
-        React.createElement('div', {style:{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'.75rem'}},
-          React.createElement('div', {className:'card-title', style:{marginBottom:0}}, '🔬 Bilan symptomatique'),
-          React.createElement('div', {style:{display:'flex',alignItems:'center',gap:'.75rem'}},
-            React.createElement('div', {style:{fontSize:'.85rem',color:'var(--text2)'}}, `Score : ${score}%`),
-            React.createElement('div', {style:{width:100,height:8,background:'var(--bg3)',borderRadius:4,overflow:'hidden'}},
-              React.createElement('div', {style:{width:`${score}%`,height:'100%',background:`hsl(${score},70%,50%)`,transition:'width .4s',borderRadius:4}})
-            )
-          )
-        ),
-        React.createElement('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}},
-          PATTERNS.map(pattern => React.createElement('div', {key:pattern.id, className:'card card-sm'},
-            React.createElement('div', {style:{fontSize:'.75rem',fontWeight:700,color:pattern.color,marginBottom:'.5rem',textTransform:'uppercase',letterSpacing:'.05em'}},
-              pattern.label
-            ),
-            pattern.symptomes.map(s => React.createElement('label', {key:s,
-              style:{display:'flex',alignItems:'center',gap:'.5rem',fontSize:'.8rem',cursor:'pointer',padding:'.2rem 0',color:checkedSymptomes[s]?'var(--text)':'var(--text2)'}},
-              React.createElement('input', {type:'checkbox',checked:!!checkedSymptomes[s],onChange:()=>toggleSymptome(s),
-                style:{accentColor:pattern.color,width:14,height:14}}),
-              s
-            ))
-          ))
-        ),
-        patternsDetectes.length > 0 && React.createElement('div', {style:{marginTop:'1rem',padding:'1rem',background:'rgba(63,182,139,0.08)',borderRadius:'10px',border:'1px solid rgba(63,182,139,0.2)'}},
-          React.createElement('div', {className:'card-title', style:{color:'var(--accent)'}}, '✅ Carences prioritaires détectées'),
-          patternsDetectes.map(p => React.createElement('div', {key:p.id, style:{marginBottom:'.5rem'}},
-            React.createElement('div', {style:{fontSize:'.8rem',fontWeight:600,color:p.color,marginBottom:'.25rem'}}, p.label),
-            React.createElement('div', {style:{fontSize:'.78rem',color:'var(--text2)'}}, p.carences.join(' · '))
-          ))
-        )
-      ),
-
-      React.createElement('hr', {className:'divider'}),
-
-      // ── Section 4 : Protocole
-      React.createElement('div', {style:{marginBottom:'1.25rem'}},
-        React.createElement('div', {className:'card-title'}, '💊 Protocole supplémentaire'),
-        React.createElement('input', {className:'form-input',style:{marginBottom:'.75rem'},value:searchSupp,onChange:e=>setSearchSupp(e.target.value),placeholder:'Rechercher un supplément…'}),
-        filteredSupp.length > 0 && React.createElement('div', {style:{background:'var(--bg3)',borderRadius:'8px',padding:'.5rem',marginBottom:'.75rem',maxHeight:160,overflowY:'auto'}},
-          filteredSupp.map(s => React.createElement('div', {key:s.id,
-            style:{padding:'.4rem .65rem',borderRadius:'6px',cursor:'pointer',display:'flex',justifyContent:'space-between',alignItems:'center',
-              background:form.protocole.find(x=>x.id===s.id)?'var(--accent-dim)':'transparent'},
-            onClick:()=>toggleSupp(s)},
-            React.createElement('div', null,
-              React.createElement('div', {style:{fontSize:'.8rem',fontWeight:500}}, s.nom),
-              React.createElement('div', {style:{fontSize:'.72rem',color:'var(--text2)'}}, s.dose)
-            ),
-            form.protocole.find(x=>x.id===s.id) && React.createElement('span', {style:{color:'var(--accent)',fontSize:'1rem'}}, '✓')
-          ))
-        ),
-        form.protocole.length > 0 && React.createElement('div', null,
-          React.createElement('div', {style:{fontSize:'.78rem',color:'var(--text2)',marginBottom:'.5rem'}}, `${form.protocole.length} supplément${form.protocole.length>1?'s':''} sélectionné${form.protocole.length>1?'s':''}`),
-          form.protocole.map(s => React.createElement('div', {key:s.id,
-            style:{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'.4rem .5rem',borderRadius:'6px',background:'var(--accent-dim)',marginBottom:'.25rem'}},
-            React.createElement('div', null,
-              React.createElement('div', {style:{fontSize:'.8rem',fontWeight:500,color:'var(--accent)'}}, s.nom),
-              React.createElement('div', {style:{fontSize:'.72rem',color:'var(--text2)'}}, s.dose)
-            ),
-            React.createElement('button', {className:'btn btn-sm',style:{padding:'.2rem .5rem',background:'none',color:'var(--text2)',border:'none'},
-              onClick:()=>setForm(f=>({...f,protocole:f.protocole.filter(x=>x.id!==s.id)}))}, '✕')
-          ))
-        )
-      ),
-
-      React.createElement('hr', {className:'divider'}),
-
-      // ── Section 5 : Notes
-      React.createElement('div', {className:'form-group'},
-        React.createElement('label', {className:'form-label'}, '📝 Notes cliniques'),
-        React.createElement('textarea', {className:'form-input',style:{minHeight:100},value:form.notes,
-          onChange:e=>setForm(f=>({...f,notes:e.target.value})),
-          placeholder:'Observations, interactions médicamenteuses, ajustements posologiques, bilans à refaire, prochaine consultation…'})
-      )
-    )
-  );
+      STATE.patients = STATE.patients.map(p=>p.id===id?{...p,...data}:p);
+      toast('Patient modifié');
+    } else {
+      const {data:res,error} = await sb.from('patients').insert([{...data,therapist_id:STATE.user.id}]).select().single();
+      if(error) throw error;
+      STATE.patients.unshift(res);
+      toast('Patient ajouté');
+    }
+    closeModal();
+    renderView($('main-content'));
+  } catch(e) { if(alertEl) alertEl.innerHTML=`<div class="alert alert-error">${tradErr(e.message)}</div>`; }
 }
 
+async function deletePatient(id) {
+  const p = STATE.patients.find(x=>x.id===id);
+  if(!confirm(`Supprimer ${p?.prenom} ${p?.nom} ?`)) return;
+  const {error} = await sb.from('patients').delete().eq('id',id);
+  if(!error) { STATE.patients = STATE.patients.filter(x=>x.id!==id); toast('Patient supprimé'); renderView($('main-content')); }
+}
 
 // ── SUPPLÉMENTS ───────────────────────────────────────────────────
-function Supplements({addToast}) {
-  const [search, setSearch] = React.useState('');
-  const [catFilter, setCatFilter] = React.useState('tous');
-  const [selected, setSelected] = React.useState(null);
-
-  const cats = ['tous','vitamine','mineral','omega','acide_amine','adaptogene','probiotique','plante','antioxydant','cognitif','sport','digestif','hormonal','immunite','stress','cardiovasculaire'];
-  const catLabels = {tous:'Tous',vitamine:'Vitamines',mineral:'Minéraux',omega:'Oméga',acide_amine:'Acides aminés',adaptogene:'Adaptogènes',probiotique:'Probiotiques',plante:'Plantes',antioxydant:'Antioxydants',cognitif:'Cognitif',sport:'Sport',digestif:'Digestif',hormonal:'Hormonal',immunite:'Immunité',stress:'Stress',cardiovasculaire:'Cardiovasculaire'};
+function renderSupplements(el) {
+  const search = STATE._suppSearch || '';
+  const cat = STATE._suppCat || 'tous';
+  const catLabels = {tous:'Tous',vitamine:'Vitamines',mineral:'Minéraux',omega:'Oméga',acide_amine:'Acides aminés',adaptogene:'Adaptogènes',probiotique:'Probiotiques',plante:'Plantes',antioxydant:'Antioxydants',cognitif:'Cognitif',sport:'Sport',digestif:'Digestif',hormonal:'Hormonal',immunite:'Immunité',stress:'Stress',cardiovasculaire:'Cardio'};
+  const cats = Object.keys(catLabels);
 
   const filtered = SUPPLEMENTS.filter(s => {
-    const matchSearch = !search || `${s.nom} ${s.indications} ${s.cat}`.toLowerCase().includes(search.toLowerCase());
-    const matchCat = catFilter==='tous' || s.cat===catFilter;
-    return matchSearch && matchCat;
+    const ms = !search || `${s.nom} ${s.indications||''} ${s.cat}`.toLowerCase().includes(search.toLowerCase());
+    const mc = cat==='tous' || s.cat===cat;
+    return ms && mc;
   });
 
-  function niveauColor(n) { return n==='l1'?'badge-green':n==='l2'?'badge-blue':n==='l3'?'badge-yellow':'badge-gray'; }
-  function niveauLabel(n) { return n==='l1'?'L1 — Méta-analyse':n==='l2'?'L2 — ECR':n==='l3'?'L3 — Cohorte':'L4 — Expert'; }
+  html(el, `
+    <div class="page-header">
+      <div>
+        <div class="page-title">Suppléments</div>
+        <div class="page-sub">${SUPPLEMENTS.length} suppléments · Base clinique PubMed</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:.75rem;margin-bottom:1rem">
+      <div class="search-wrap" style="max-width:400px">
+        <span class="search-icon">🔍</span>
+        <input class="form-input" placeholder="Rechercher — nom, indication, pathologie…" value="${search}"
+          oninput="STATE._suppSearch=this.value;renderView($('main-content'))">
+      </div>
+    </div>
+    <div class="filter-pills">
+      ${cats.map(c=>`<span class="pill ${cat===c?'active':''}" onclick="STATE._suppCat='${c}';renderView($('main-content'))">${catLabels[c]}</span>`).join('')}
+    </div>
+    <div style="font-size:.8rem;color:var(--text2);margin-bottom:1rem">${filtered.length} résultat${filtered.length>1?'s':''}</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:.85rem">
+      ${filtered.slice(0,60).map(s=>`
+        <div class="supp-card" onclick="showSupp('${s.id}')">
+          <div class="supp-cat">${catLabels[s.cat]||s.cat}${s.sous?` · ${s.sous}`:''}</div>
+          <div class="supp-nom">${s.nom}</div>
+          <div class="supp-dose">${s.dose||''}</div>
+          <div style="margin-top:.4rem">
+            <span class="badge ${s.niveau==='l1'?'badge-green':s.niveau==='l2'?'badge-blue':s.niveau==='l3'?'badge-yellow':'badge-gray'}">${s.niveauLabel||'Niveau '+s.niveau}</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    ${filtered.length>60?`<div style="text-align:center;padding:1rem;color:var(--text2);font-size:.85rem">${filtered.length-60} suppléments supplémentaires — affinez votre recherche</div>`:''}
+  `);
+}
 
-  return React.createElement('div', null,
-    React.createElement('div', {className:'page-header'},
-      React.createElement('div', null,
-        React.createElement('div', {className:'page-title'}, 'Suppléments'),
-        React.createElement('div', {className:'page-sub'}, `${SUPPLEMENTS.length} suppléments · Base clinique PubMed`)
-      )
-    ),
-    React.createElement('div', {className:'search-bar'},
-      React.createElement('div', {className:'search-input-wrap'},
-        React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.search}}),
-        React.createElement('input', {className:'form-input',placeholder:'Rechercher — nom, indication, pathologie…',value:search,onChange:e=>setSearch(e.target.value)})
-      )
-    ),
-    React.createElement('div', {className:'filter-pills', style:{marginBottom:'1.25rem',flexWrap:'wrap'}},
-      cats.map(c => React.createElement('span', {key:c, className:`pill ${catFilter===c?'active':''}`, onClick:()=>setCatFilter(c)}, catLabels[c]||c))
-    ),
-    React.createElement('div', {style:{fontSize:'.8rem',color:'var(--text2)',marginBottom:'1rem'}}, `${filtered.length} résultat${filtered.length>1?'s':''}`),
-    React.createElement('div', {style:{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))',gap:'.85rem'}},
-      filtered.slice(0,60).map(s => React.createElement('div', {key:s.id, className:'supp-card', onClick:()=>setSelected(s)},
-        React.createElement('div', {className:'supp-cat'}, (catLabels[s.cat]||s.cat)+(s.sous?` · ${s.sous}`:'')),
-        React.createElement('div', {className:'supp-nom'}, s.nom),
-        React.createElement('div', {className:'supp-dose'}, s.dose),
-        React.createElement('div', {style:{marginTop:'.5rem',display:'flex',gap:'.4rem',flexWrap:'wrap'}},
-          React.createElement('span', {className:`badge ${niveauColor(s.niveau)}`}, s.niveauLabel||niveauLabel(s.niveau))
-        )
-      ))
-    ),
-    filtered.length>60 && React.createElement('div', {style:{textAlign:'center',marginTop:'1rem',color:'var(--text2)',fontSize:'.85rem'}},
-      `${filtered.length-60} suppléments supplémentaires — affinez votre recherche`
-    ),
-    selected && React.createElement(Modal, {show:true, onClose:()=>setSelected(null), title:selected.nom, lg:true},
-      React.createElement('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1.25rem'}},
-        React.createElement('div', null,
-          React.createElement('div', {className:'card-title'}, '📊 Niveau de preuve'),
-          React.createElement('span', {className:`badge ${niveauColor(selected.niveau)}`,style:{marginBottom:'1rem',display:'inline-flex'}}, selected.niveauLabel||niveauLabel(selected.niveau)),
-          selected.finding && React.createElement('p', {style:{fontSize:'.85rem',color:'var(--text2)',marginBottom:'1rem',lineHeight:1.6}}, selected.finding),
-          React.createElement('div', {className:'card-title'}, '💊 Dosage & Timing'),
-          React.createElement('div', {style:{background:'var(--bg3)',borderRadius:'8px',padding:'.75rem',marginBottom:'1rem'}},
-            React.createElement('div', {style:{fontSize:'.875rem',fontWeight:500,marginBottom:'.3rem'}}, selected.dose),
-            selected.timing && React.createElement('div', {style:{fontSize:'.8rem',color:'var(--text2)'}}, '⏰ '+selected.timing)
-          ),
-          React.createElement('div', {className:'card-title'}, '🔬 Biodisponibilité'),
-          React.createElement('p', {style:{fontSize:'.85rem',color:'var(--text2)',lineHeight:1.6}}, selected.bio)
-        ),
-        React.createElement('div', null,
-          React.createElement('div', {className:'card-title'}, '✅ Indications'),
-          React.createElement('p', {style:{fontSize:'.85rem',color:'var(--text)',lineHeight:1.7,marginBottom:'1rem'}}, selected.indications),
-          React.createElement('div', {className:'card-title'}, '⚠️ Contre-indications'),
-          React.createElement('p', {style:{fontSize:'.85rem',color:'#f85149',lineHeight:1.6,marginBottom:'1rem'}}, selected.ci),
-          selected.synergies && React.createElement(React.Fragment, null,
-            React.createElement('div', {className:'card-title'}, '🤝 Synergies'),
-            React.createElement('p', {style:{fontSize:'.85rem',color:'var(--text2)',lineHeight:1.6,marginBottom:'1rem'}}, selected.synergies)
-          ),
-          selected.pmid && React.createElement(React.Fragment, null,
-            React.createElement('div', {className:'card-title'}, '📖 PMID PubMed'),
-            React.createElement('div', {style:{display:'flex',flexWrap:'wrap',gap:'.35rem'}},
-              selected.pmid.split(',').map(id => React.createElement('a', {
-                key:id, href:`https://pubmed.ncbi.nlm.nih.gov/${id.trim()}`, target:'_blank',
-                style:{fontSize:'.75rem',color:'var(--info)',textDecoration:'none'}
-              }, id.trim()))
-            )
-          )
-        )
-      )
-    )
-  );
+function showSupp(id) {
+  const s = SUPPLEMENTS.find(x=>x.id===id);
+  if(!s) return;
+  modal(`
+    <div class="modal-header">
+      <div class="modal-title">${s.nom}</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="grid-2">
+        <div>
+          <div class="card-title">📊 Niveau de preuve</div>
+          <span class="badge ${s.niveau==='l1'?'badge-green':s.niveau==='l2'?'badge-blue':s.niveau==='l3'?'badge-yellow':'badge-gray'}" style="margin-bottom:1rem;display:inline-flex">${s.niveauLabel||s.niveau}</span>
+          ${s.finding?`<p style="font-size:.85rem;color:var(--text2);line-height:1.6;margin-bottom:1rem">${s.finding}</p>`:''}
+          <div class="card-title">💊 Dosage & Timing</div>
+          <div style="background:var(--bg3);border-radius:8px;padding:.75rem;margin-bottom:1rem">
+            <div style="font-size:.875rem;font-weight:500">${s.dose||'—'}</div>
+            ${s.timing?`<div style="font-size:.8rem;color:var(--text2);margin-top:.25rem">⏰ ${s.timing}</div>`:''}
+          </div>
+          <div class="card-title">🔬 Biodisponibilité</div>
+          <p style="font-size:.85rem;color:var(--text2);line-height:1.6">${s.bio||'—'}</p>
+        </div>
+        <div>
+          <div class="card-title">✅ Indications</div>
+          <p style="font-size:.85rem;line-height:1.7;margin-bottom:1rem">${s.indications||'—'}</p>
+          <div class="card-title">⚠️ Contre-indications</div>
+          <p style="font-size:.85rem;color:var(--danger);line-height:1.6;margin-bottom:1rem">${s.ci||'—'}</p>
+          ${s.synergies?`<div class="card-title">🤝 Synergies</div><p style="font-size:.85rem;color:var(--text2);line-height:1.6;margin-bottom:1rem">${s.synergies}</p>`:''}
+          ${s.pmid?`<div class="card-title">📖 PMID PubMed</div><div style="display:flex;flex-wrap:wrap;gap:.35rem">${s.pmid.split(',').map(id=>`<a href="https://pubmed.ncbi.nlm.nih.gov/${id.trim()}" target="_blank" style="font-size:.75rem;color:var(--info)">${id.trim()}</a>`).join('')}</div>`:''}
+        </div>
+      </div>
+    </div>
+  `, 'modal-lg');
 }
 
 // ── CONSULTATIONS ─────────────────────────────────────────────────
-function Consultations({therapist, patients, consultations, setConsultations, addToast}) {
-  const [showModal, setShowModal] = React.useState(false);
-  const [form, setForm] = React.useState({patient_id:'',titre:'',notes:'',protocole:[]});
-  const [searchSupp, setSearchSupp] = React.useState('');
-  const [saving, setSaving] = React.useState(false);
+const PATTERNS = [
+  {id:'anemie',label:'Anémie / carence en fer',color:'#e74c3c',symptomes:['Fatigue chronique dès le matin','Fatigue mentale chronique','Chute de cheveux diffuse','Palpitations / tachycardie','Essoufflement à l\'effort','Sensibilité au froid'],seuil:2,carences:['Fer bisglycinate ou Sideral','B12 méthylcobalamine','Folates B9 (5-MTHF)']},
+  {id:'thyroide',label:'Dysfonction thyroïdienne',color:'#e67e22',symptomes:['TSH élevée (> 2,5 mUI/L)','Prise de poids inexpliquée','Sourcils clairsemés','Frilosité excessive','Constipation (< 1 selle/j)','Fatigue matinale persistante'],seuil:2,carences:['Iode (150–300 µg/j)','Zinc (25 mg/j)','Sélénium (100–200 µg/j)','Ashwagandha KSM-66']},
+  {id:'surrenales',label:'Épuisement surrénalien',color:'#f39c12',symptomes:['Coup de barre après les repas','Burn-out / épuisement émotionnel','Anxiété généralisée','Hypoglycémie réactionnelle','Réveil nocturne 2h-4h','Difficultés de concentration'],seuil:2,carences:['Magnésium bisglycinate (400 mg/j)','Vitamine C (1g/j)','Ashwagandha KSM-66','Rhodiola rosea']},
+  {id:'inflammation',label:'Inflammation chronique',color:'#e74c3c',symptomes:['Douleurs articulaires diffuses','Fatigue post-prandiale','Ballonnements chroniques','Troubles de peau (eczéma, psoriasis)','Sinusites à répétition','Brouillard mental'],seuil:2,carences:['Oméga-3 EPA+DHA (2g/j)','Curcumine (500mg/j)','Vitamine D3 (5000 UI/j)','Quercétine']},
+  {id:'dysbiose',label:'Dysbiose intestinale',color:'#27ae60',symptomes:['Ballonnements après chaque repas','Transit irrégulier','Candidose récidivante','Intolérances alimentaires multiples','Fatigue post-prandiale','Dermatite / eczéma'],seuil:2,carences:['Probiotiques multi-souches','L-Glutamine (5g/j)','Zinc carnosine','Berbérine']},
+  {id:'sommeil',label:'Troubles du sommeil',color:'#2980b9',symptomes:['Difficultés d\'endormissement','Réveils nocturnes fréquents','Sommeil non réparateur','Fatigue au réveil','Tension musculaire le soir'],seuil:2,carences:['Magnésium bisglycinate (300mg soir)','Mélatonine (0,5-1mg)','L-Théanine (200mg)','Valériane']},
+  {id:'carence_vd',label:'Carence Vitamine D',color:'#f1c40f',symptomes:['Fatigue hivernale','Infections respiratoires fréquentes','Douleurs musculaires diffuses','Déprime saisonnière','Troubles du sommeil'],seuil:2,carences:['Vitamine D3 (5000-10000 UI/j)','Vitamine K2 MK7 (100 µg/j)','Magnésium (cofacteur)']},
+  {id:'stress_oxydatif',label:'Stress oxydatif',color:'#8e44ad',symptomes:['Vieillissement prématuré','Fatigue chronique inexpliquée','Infections fréquentes','Mauvaise récupération sportive','Troubles cognitifs'],seuil:2,carences:['CoQ10 (100-300 mg/j)','N-Acétyl Cystéine','Resvératrol','Acide alpha-lipoïque']},
+];
 
-  const filteredSupp = SUPPLEMENTS.filter(s =>
-    searchSupp && `${s.nom} ${s.indications}`.toLowerCase().includes(searchSupp.toLowerCase())
-  ).slice(0,8);
+let _checkedSymptomes = {};
+let _protocole = [];
+let _suppSearch = '';
 
-  function toggleSupp(s) {
-    setForm(f => {
-      const exists = f.protocole.find(x=>x.id===s.id);
-      return {...f, protocole: exists ? f.protocole.filter(x=>x.id!==s.id) : [...f.protocole, {id:s.id,nom:s.nom,dose:s.dose,duree:'1 mois'}]};
-    });
+function renderConsultations(el) {
+  const sorted = [...STATE.consultations].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  html(el, `
+    <div class="page-header">
+      <div>
+        <div class="page-title">Consultations</div>
+        <div class="page-sub">${STATE.consultations.length} consultation${STATE.consultations.length>1?'s':''}</div>
+      </div>
+      <button class="btn btn-primary" onclick="openConsultModal()">＋ Nouvelle consultation</button>
+    </div>
+    ${sorted.length===0?`<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Aucune consultation</div><div style="margin-top:1rem"><button class="btn btn-primary" onclick="openConsultModal()">＋ Nouvelle consultation</button></div></div>`:`
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Patient</th><th>Type</th><th>Score bilan</th><th>Protocole</th><th>Date</th></tr></thead>
+        <tbody>
+          ${sorted.map(c=>{
+            const p = STATE.patients.find(x=>x.id===c.patient_id);
+            const score = c.bilan?.score||0;
+            return `<tr>
+              <td>${p?`${p.prenom} ${p.nom}`:'—'}</td>
+              <td>${c.type_consultation||'Consultation'}</td>
+              <td><div style="display:flex;align-items:center;gap:.5rem">
+                <div style="width:60px;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden">
+                  <div style="width:${score}%;height:100%;background:hsl(${score},70%,50%);border-radius:3px"></div>
+                </div>
+                <span style="font-size:.75rem;color:var(--text2)">${score}%</span>
+              </div></td>
+              <td>${(c.protocole||[]).length>0?`<span class="badge badge-green">${c.protocole.length} supplément${c.protocole.length>1?'s':''}</span>`:'<span class="badge badge-gray">—</span>'}</td>
+              <td>${new Date(c.created_at).toLocaleDateString('fr-FR')}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`}
+  `);
+}
+
+function openConsultModal() {
+  _checkedSymptomes = {};
+  _protocole = [];
+  _suppSearch = '';
+  const types = ['Bilan initial','Suivi mensuel','Suivi trimestriel','Urgence','Téléconsultation'];
+  const profils = ['general','sportif','femme_enceinte','seniorite','pediatrie','vegetarien','vegane'];
+
+  const overlay = modal(`
+    <div class="modal-header">
+      <div class="modal-title">Nouvelle consultation</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="consult-body">
+      <div id="consult-alert"></div>
+      <!-- IDENTIFICATION -->
+      <div class="card-title">👤 Identification</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin-bottom:1rem">
+        <div class="form-group"><label class="form-label">Patient *</label>
+          <select class="form-input" id="c-patient">
+            <option value="">Sélectionner…</option>
+            ${STATE.patients.map(p=>`<option value="${p.id}">${p.prenom} ${p.nom}</option>`).join('')}
+          </select></div>
+        <div class="form-group"><label class="form-label">Type</label>
+          <select class="form-input" id="c-type">${types.map(t=>`<option value="${t}">${t}</option>`).join('')}</select></div>
+        <div class="form-group"><label class="form-label">Profil</label>
+          <select class="form-input" id="c-profil">${profils.map(p=>`<option value="${p}">${p.charAt(0).toUpperCase()+p.slice(1).replace(/_/g,' ')}</option>`).join('')}</select></div>
+      </div>
+      <div class="form-group" style="margin-bottom:1rem"><label class="form-label">Titre</label>
+        <input class="form-input" id="c-titre" placeholder="Ex: Bilan initial — Fatigue chronique"></div>
+      <hr class="divider">
+      <!-- ANAMNESE -->
+      <div class="card-title">📋 Anamnèse</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem">
+        <div class="form-group"><label class="form-label">Motif principal</label>
+          <textarea class="form-input" id="c-motif" style="min-height:70px" placeholder="Fatigue chronique, troubles du sommeil…"></textarea></div>
+        <div class="form-group"><label class="form-label">Antécédents & pathologies</label>
+          <textarea class="form-input" id="c-antec" style="min-height:70px" placeholder="Hypothyroïdie, diabète T2, SOPK…"></textarea></div>
+        <div class="form-group"><label class="form-label">Médicaments & suppléments en cours</label>
+          <textarea class="form-input" id="c-meds" style="min-height:70px" placeholder="Lévothyrox 50µg/j, pilule…"></textarea></div>
+        <div class="form-group"><label class="form-label">Allergies & intolérances</label>
+          <input class="form-input" id="c-allerg" placeholder="Gluten, lactose, arachides…"></div>
+        <div class="form-group" style="grid-column:1/-1"><label class="form-label">Objectifs thérapeutiques</label>
+          <input class="form-input" id="c-objectifs" placeholder="Retrouver de l'énergie, améliorer le sommeil…"></div>
+      </div>
+      <hr class="divider">
+      <!-- BILAN SYMPTOMATIQUE -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
+        <div class="card-title" style="margin:0">🔬 Bilan symptomatique</div>
+        <div style="display:flex;align-items:center;gap:.75rem">
+          <span style="font-size:.85rem;color:var(--text2)" id="score-label">Score : 0%</span>
+          <div style="width:100px;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden">
+            <div id="score-bar" style="width:0%;height:100%;background:var(--accent);transition:width .4s;border-radius:4px"></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem" id="patterns-grid">
+        ${PATTERNS.map(pat=>`
+          <div class="card" style="padding:.75rem">
+            <div style="font-size:.72rem;font-weight:700;color:${pat.color};margin-bottom:.5rem;text-transform:uppercase">${pat.label}</div>
+            ${pat.symptomes.map(s=>`
+              <label style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;cursor:pointer;padding:.15rem 0;color:var(--text2)" id="lbl-${btoa(s).replace(/[^a-zA-Z0-9]/g,'')}">
+                <input type="checkbox" onchange="toggleSymptome(this,'${s.replace(/'/g,"\\'")}','${pat.color}')" style="accentColor:${pat.color}">
+                ${s}
+              </label>
+            `).join('')}
+          </div>
+        `).join('')}
+      </div>
+      <div id="carences-detectees"></div>
+      <hr class="divider">
+      <!-- PROTOCOLE -->
+      <div class="card-title">💊 Protocole supplémentaire</div>
+      <input class="form-input" id="supp-search" placeholder="Rechercher un supplément…" style="margin-bottom:.75rem"
+        oninput="filterSuppsModal(this.value)">
+      <div id="supp-results" style="margin-bottom:.75rem"></div>
+      <div id="protocole-list"></div>
+      <hr class="divider">
+      <!-- NOTES -->
+      <div class="form-group"><label class="form-label">📝 Notes cliniques</label>
+        <textarea class="form-input" id="c-notes" style="min-height:100px" placeholder="Observations, interactions, ajustements posologiques, bilan à refaire…"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="saveConsult()">Enregistrer la consultation</button>
+    </div>
+  `, 'modal-lg');
+}
+
+function toggleSymptome(cb, s, color) {
+  if(cb.checked) { _checkedSymptomes[s]=true; cb.parentElement.style.color='var(--text)'; }
+  else { delete _checkedSymptomes[s]; cb.parentElement.style.color='var(--text2)'; }
+  updateScore();
+}
+
+function updateScore() {
+  let total=0, max=0;
+  PATTERNS.forEach(p=>{ max+=p.symptomes.length; p.symptomes.forEach(s=>{ if(_checkedSymptomes[s]) total++; }); });
+  const score = max>0?Math.round((total/max)*100):0;
+  const bar = $('score-bar'), label = $('score-label');
+  if(bar) { bar.style.width=score+'%'; bar.style.background=`hsl(${score},70%,50%)`; }
+  if(label) label.textContent=`Score : ${score}%`;
+
+  const detected = PATTERNS.filter(p=>p.symptomes.filter(s=>_checkedSymptomes[s]).length>=p.seuil);
+  const carencesEl = $('carences-detectees');
+  if(carencesEl) {
+    if(detected.length>0) {
+      carencesEl.innerHTML=`<div style="padding:1rem;background:rgba(63,182,139,0.08);border-radius:10px;border:1px solid rgba(63,182,139,0.2);margin-bottom:1rem">
+        <div class="card-title" style="color:var(--accent)">✅ Carences prioritaires détectées</div>
+        ${detected.map(p=>`<div style="margin-bottom:.5rem">
+          <div style="font-size:.8rem;font-weight:600;color:${p.color}">${p.label}</div>
+          <div style="font-size:.78rem;color:var(--text2)">${p.carences.join(' · ')}</div>
+        </div>`).join('')}
+      </div>`;
+    } else carencesEl.innerHTML='';
   }
+}
 
-  async function save() {
-    if(!form.patient_id){addToast('Sélectionnez un patient','error');return;}
-    setSaving(true);
-    try {
-      const {data,error} = await sb.from('consultations').insert([{
-        ...form, therapist_id:therapist.id,
-        date_consultation: new Date().toISOString()
-      }]).select().single();
-      if(error) throw error;
-      setConsultations(cs=>[data,...cs]);
-      addToast('Consultation enregistrée','success');
-      setShowModal(false);
-      setForm({patient_id:'',titre:'',notes:'',protocole:[]});
-    } catch(e){addToast(e.message,'error');}
-    finally{setSaving(false);}
+function filterSuppsModal(search) {
+  const resultsEl = $('supp-results');
+  if(!search||search.length<2) { if(resultsEl) resultsEl.innerHTML=''; return; }
+  const filtered = SUPPLEMENTS.filter(s=>`${s.nom} ${s.indications||''}`.toLowerCase().includes(search.toLowerCase())).slice(0,6);
+  if(resultsEl) {
+    resultsEl.innerHTML=filtered.length===0?'':`<div style="background:var(--bg3);border-radius:8px;padding:.5rem;max-height:180px;overflow-y:auto">
+      ${filtered.map(s=>`
+        <div onclick="addToProtocole('${s.id}')" style="padding:.4rem .65rem;border-radius:6px;cursor:pointer;display:flex;justify-content:space-between;align-items:center"
+          onmouseover="this.style.background='var(--accent-dim)'" onmouseout="this.style.background=''">
+          <div>
+            <div style="font-size:.8rem;font-weight:500">${s.nom}</div>
+            <div style="font-size:.72rem;color:var(--text2)">${s.dose||''}</div>
+          </div>
+          ${_protocole.find(x=>x.id===s.id)?'<span style="color:var(--accent)">✓</span>':''}
+        </div>
+      `).join('')}
+    </div>`;
   }
+}
 
-  const sorted = [...consultations].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+function addToProtocole(id) {
+  const s = SUPPLEMENTS.find(x=>x.id===id);
+  if(!s) return;
+  if(_protocole.find(x=>x.id===id)) { _protocole=_protocole.filter(x=>x.id!==id); }
+  else { _protocole.push({id:s.id,nom:s.nom,dose:s.dose||''}); }
+  renderProtocole();
+  const searchVal = $('supp-search')?.value;
+  if(searchVal) filterSuppsModal(searchVal);
+}
 
-  return React.createElement('div', null,
-    React.createElement('div', {className:'page-header'},
-      React.createElement('div', null,
-        React.createElement('div', {className:'page-title'}, 'Consultations'),
-        React.createElement('div', {className:'page-sub'}, `${consultations.length} consultation${consultations.length>1?'s':''}`)
-      ),
-      React.createElement('button', {className:'btn btn-primary', onClick:()=>setShowModal(true)},
-        React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.plus}}), ' Nouvelle consultation'
-      )
-    ),
-    consultations.length===0
-      ? React.createElement(Empty, {icon:'📋',title:'Aucune consultation',sub:'Créez votre première consultation',
-          action:React.createElement('button',{className:'btn btn-primary',onClick:()=>setShowModal(true)},React.createElement('span',{dangerouslySetInnerHTML:{__html:icons.plus}}),' Nouvelle consultation')})
-      : React.createElement('div', {className:'table-wrap'},
-          React.createElement('table', {className:'table'},
-            React.createElement('thead', null,
-              React.createElement('tr', null,
-                ['Patient','Titre','Protocole','Date',''].map(h=>React.createElement('th',{key:h},h))
-              )
-            ),
-            React.createElement('tbody', null,
-              sorted.map(c => {
-                const p = patients.find(x=>x.id===c.patient_id);
-                return React.createElement('tr', {key:c.id},
-                  React.createElement('td', null, p?`${p.prenom} ${p.nom}`:'—'),
-                  React.createElement('td', null, c.titre||'Consultation'),
-                  React.createElement('td', null,
-                    (c.protocole||[]).length>0
-                      ? React.createElement('span', {className:'badge badge-green'}, `${c.protocole.length} supplément${c.protocole.length>1?'s':''}`)
-                      : React.createElement('span', {className:'badge badge-gray'}, 'Sans protocole')
-                  ),
-                  React.createElement('td', null, new Date(c.created_at).toLocaleDateString('fr-FR')),
-                  React.createElement('td', null)
-                );
-              })
-            )
-          )
-        ),
-    React.createElement(Modal, {show:showModal, onClose:()=>setShowModal(false), title:'Nouvelle consultation', lg:true,
-      footer:React.createElement(React.Fragment,null,
-        React.createElement('button',{className:'btn btn-secondary',onClick:()=>setShowModal(false)},'Annuler'),
-        React.createElement('button',{className:'btn btn-primary',onClick:save,disabled:saving},saving?'Enregistrement…':'Enregistrer')
-      )},
-      React.createElement('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}},
-        React.createElement('div', null,
-          React.createElement('div', {className:'form-group'},
-            React.createElement('label', {className:'form-label'}, 'Patient *'),
-            React.createElement('select', {className:'form-input',value:form.patient_id,onChange:e=>setForm(f=>({...f,patient_id:e.target.value}))},
-              React.createElement('option', {value:''}, 'Sélectionner un patient…'),
-              patients.map(p=>React.createElement('option',{key:p.id,value:p.id},`${p.prenom} ${p.nom}`))
-            )
-          ),
-          React.createElement('div', {className:'form-group'},
-            React.createElement('label', {className:'form-label'}, 'Titre de la consultation'),
-            React.createElement('input', {className:'form-input',value:form.titre,onChange:e=>setForm(f=>({...f,titre:e.target.value})),placeholder:'Bilan initial, Suivi M2…'})
-          ),
-          React.createElement('div', {className:'form-group'},
-            React.createElement('label', {className:'form-label'}, 'Notes cliniques'),
-            React.createElement('textarea', {className:'form-input',style:{minHeight:120},value:form.notes,onChange:e=>setForm(f=>({...f,notes:e.target.value})),placeholder:'Anamnèse, observations, recommandations…'})
-          )
-        ),
-        React.createElement('div', null,
-          React.createElement('div', {className:'form-group'},
-            React.createElement('label', {className:'form-label'}, '💊 Protocole supplémentaire'),
-            React.createElement('input', {className:'form-input',value:searchSupp,onChange:e=>setSearchSupp(e.target.value),placeholder:'Rechercher un supplément…'})
-          ),
-          filteredSupp.length>0 && React.createElement('div', {style:{background:'var(--bg3)',borderRadius:'8px',padding:'.5rem',marginBottom:'1rem',maxHeight:180,overflowY:'auto'}},
-            filteredSupp.map(s => React.createElement('div', {key:s.id,
-              style:{padding:'.45rem .65rem',borderRadius:'6px',cursor:'pointer',display:'flex',justifyContent:'space-between',alignItems:'center',
-                background:form.protocole.find(x=>x.id===s.id)?'var(--accent-dim)':'transparent'},
-              onClick:()=>toggleSupp(s)},
-              React.createElement('span', {style:{fontSize:'.8rem'}}, s.nom),
-              form.protocole.find(x=>x.id===s.id) && React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.check},style:{color:'var(--accent)',width:14,height:14}})
-            ))
-          ),
-          form.protocole.length>0 && React.createElement('div', null,
-            React.createElement('div', {className:'card-title'}, `Protocole (${form.protocole.length})`),
-            form.protocole.map(s => React.createElement('div', {key:s.id, style:{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'.4rem 0',borderBottom:'1px solid var(--border2)'}},
-              React.createElement('span', {style:{fontSize:'.8rem',fontWeight:500}}, s.nom),
-              React.createElement('button', {className:'btn btn-danger btn-sm',onClick:()=>setForm(f=>({...f,protocole:f.protocole.filter(x=>x.id!==s.id)}))},
-                React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.close},style:{width:12,height:12}})
-              )
-            ))
-          )
-        )
-      )
-    )
-  );
+function renderProtocole() {
+  const el=$('protocole-list');
+  if(!el) return;
+  if(_protocole.length===0) { el.innerHTML=''; return; }
+  el.innerHTML=`<div style="font-size:.78rem;color:var(--text2);margin-bottom:.5rem">${_protocole.length} supplément${_protocole.length>1?'s':''} sélectionné${_protocole.length>1?'s':''}</div>
+  ${_protocole.map(s=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .5rem;border-radius:6px;background:var(--accent-dim);margin-bottom:.25rem">
+      <div>
+        <div style="font-size:.8rem;font-weight:500;color:var(--accent)">${s.nom}</div>
+        <div style="font-size:.72rem;color:var(--text2)">${s.dose}</div>
+      </div>
+      <button style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:1rem" onclick="addToProtocole('${s.id}')">✕</button>
+    </div>
+  `).join('')}`;
+}
+
+async function saveConsult() {
+  const patientId = $('c-patient')?.value;
+  const alertEl = $('consult-alert');
+  if(!patientId) { if(alertEl) alertEl.innerHTML='<div class="alert alert-error">Sélectionnez un patient</div>'; return; }
+
+  let total=0, max=0;
+  PATTERNS.forEach(p=>{ max+=p.symptomes.length; p.symptomes.forEach(s=>{ if(_checkedSymptomes[s]) total++; }); });
+  const score = max>0?Math.round((total/max)*100):0;
+  const patternsDetectes = PATTERNS.filter(p=>p.symptomes.filter(s=>_checkedSymptomes[s]).length>=p.seuil).map(p=>p.id);
+
+  const data = {
+    therapist_id: STATE.user.id,
+    patient_id: patientId,
+    titre: $('c-titre')?.value?.trim()||'Consultation',
+    type_consultation: $('c-type')?.value||'Bilan initial',
+    profil_patient: $('c-profil')?.value||'general',
+    motif: $('c-motif')?.value?.trim(),
+    antecedents: $('c-antec')?.value?.trim(),
+    medicaments: $('c-meds')?.value?.trim(),
+    allergies: $('c-allerg')?.value?.trim(),
+    objectifs: $('c-objectifs')?.value?.trim(),
+    notes: $('c-notes')?.value?.trim(),
+    protocole: _protocole,
+    bilan: {symptomes:_checkedSymptomes, score, patternsDetectes},
+    date_consultation: new Date().toISOString(),
+  };
+
+  try {
+    const {data:res,error} = await sb.from('consultations').insert([data]).select().single();
+    if(error) throw error;
+    STATE.consultations.unshift(res);
+    toast('Consultation enregistrée ✅');
+    closeModal();
+    renderView($('main-content'));
+  } catch(e) { if(alertEl) alertEl.innerHTML=`<div class="alert alert-error">${tradErr(e.message)}</div>`; }
 }
 
 
 // ── AGENDA ────────────────────────────────────────────────────────
-function Agenda({therapist, patients, addToast}) {
-  const [rdvs, setRdvs] = React.useState([]);
-  const [showModal, setShowModal] = React.useState(false);
-  const [form, setForm] = React.useState({patient_id:'',titre:'',date_rdv:'',duree_minutes:60,notes:''});
-  const [saving, setSaving] = React.useState(false);
-
-  React.useEffect(()=>{
-    sb.from('agenda').select('*').eq('therapist_id',therapist.id).order('date_rdv').then(({data})=>setRdvs(data||[]));
-  },[]);
-
-  async function save() {
-    if(!form.date_rdv||!form.titre){addToast('Titre et date requis','error');return;}
-    setSaving(true);
-    try {
-      const {data,error} = await sb.from('agenda').insert([{...form,therapist_id:therapist.id}]).select().single();
-      if(error) throw error;
-      setRdvs(rs=>[...rs,data].sort((a,b)=>new Date(a.date_rdv)-new Date(b.date_rdv)));
-      addToast('RDV ajouté','success'); setShowModal(false);
-      setForm({patient_id:'',titre:'',date_rdv:'',duree_minutes:60,notes:''});
-    } catch(e){addToast(e.message,'error');}
-    finally{setSaving(false);}
+let _rdvs = [];
+async function renderAgenda(el) {
+  if(_rdvs.length===0) {
+    const {data} = await sb.from('agenda').select('*').eq('therapist_id',STATE.user.id).order('date_rdv');
+    _rdvs = data||[];
   }
-
-  async function deleteRdv(id) {
-    if(!confirm('Supprimer ce RDV ?')) return;
-    await sb.from('agenda').delete().eq('id',id);
-    setRdvs(rs=>rs.filter(r=>r.id!==id));
-    addToast('RDV supprimé','success');
-  }
-
-  // Grouper par jour
+  const now = new Date(Date.now()-86400000);
+  const upcoming = _rdvs.filter(r=>new Date(r.date_rdv)>=now);
   const grouped = {};
-  rdvs.filter(r=>new Date(r.date_rdv)>=new Date(Date.now()-86400000)).forEach(r=>{
-    const day = new Date(r.date_rdv).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+  upcoming.forEach(r=>{
+    const day=new Date(r.date_rdv).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
     if(!grouped[day]) grouped[day]=[];
     grouped[day].push(r);
   });
 
-  return React.createElement('div', null,
-    React.createElement('div', {className:'page-header'},
-      React.createElement('div', null,
-        React.createElement('div', {className:'page-title'}, 'Agenda'),
-        React.createElement('div', {className:'page-sub'}, 'Rendez-vous à venir')
-      ),
-      React.createElement('button', {className:'btn btn-primary', onClick:()=>setShowModal(true)},
-        React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.plus}}), ' Nouveau RDV'
-      )
-    ),
-    Object.keys(grouped).length===0
-      ? React.createElement(Empty, {icon:'📅',title:'Aucun rendez-vous',sub:'Planifiez votre premier rendez-vous'})
-      : Object.entries(grouped).map(([day,rs])=>
-          React.createElement('div', {key:day, className:'agenda-day'},
-            React.createElement('div', {className:'agenda-day-header'}, day),
-            rs.map(r => {
-              const p = patients.find(x=>x.id===r.patient_id);
-              return React.createElement('div', {key:r.id, className:'rdv-item'},
-                React.createElement('div', {className:'rdv-time'}, new Date(r.date_rdv).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})),
-                React.createElement('div', {className:'rdv-info'},
-                  React.createElement('div', {className:'rdv-title'}, r.titre),
-                  React.createElement('div', {className:'rdv-patient'}, p?`${p.prenom} ${p.nom}`:'' , r.duree_minutes?` · ${r.duree_minutes} min`:'')
-                ),
-                React.createElement('button', {className:'btn btn-danger btn-sm', onClick:()=>deleteRdv(r.id)},
-                  React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.trash}})
-                )
-              );
-            })
-          )
-        ),
-    React.createElement(Modal, {show:showModal, onClose:()=>setShowModal(false), title:'Nouveau rendez-vous',
-      footer:React.createElement(React.Fragment,null,
-        React.createElement('button',{className:'btn btn-secondary',onClick:()=>setShowModal(false)},'Annuler'),
-        React.createElement('button',{className:'btn btn-primary',onClick:save,disabled:saving},saving?'Enregistrement…':'Enregistrer')
-      )},
-      React.createElement('div', {className:'form-group'},
-        React.createElement('label', {className:'form-label'}, 'Titre *'),
-        React.createElement('input', {className:'form-input',value:form.titre,onChange:e=>setForm(f=>({...f,titre:e.target.value})),placeholder:'Consultation initiale, Bilan suivi…'})
-      ),
-      React.createElement('div', {className:'form-group'},
-        React.createElement('label', {className:'form-label'}, 'Patient'),
-        React.createElement('select', {className:'form-input',value:form.patient_id,onChange:e=>setForm(f=>({...f,patient_id:e.target.value}))},
-          React.createElement('option', {value:''}, 'Sélectionner un patient…'),
-          patients.map(p=>React.createElement('option',{key:p.id,value:p.id},`${p.prenom} ${p.nom}`))
-        )
-      ),
-      React.createElement('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'.75rem'}},
-        React.createElement('div', {className:'form-group'},
-          React.createElement('label', {className:'form-label'}, 'Date et heure *'),
-          React.createElement('input', {className:'form-input',type:'datetime-local',value:form.date_rdv,onChange:e=>setForm(f=>({...f,date_rdv:e.target.value}))})
-        ),
-        React.createElement('div', {className:'form-group'},
-          React.createElement('label', {className:'form-label'}, 'Durée (min)'),
-          React.createElement('input', {className:'form-input',type:'number',value:form.duree_minutes,onChange:e=>setForm(f=>({...f,duree_minutes:+e.target.value})),min:15,step:15})
-        )
-      ),
-      React.createElement('div', {className:'form-group'},
-        React.createElement('label', {className:'form-label'}, 'Notes'),
-        React.createElement('textarea', {className:'form-input',value:form.notes,onChange:e=>setForm(f=>({...f,notes:e.target.value})),placeholder:'Informations complémentaires…'})
-      )
-    )
-  );
+  html(el, `
+    <div class="page-header">
+      <div><div class="page-title">Agenda</div><div class="page-sub">Rendez-vous à venir</div></div>
+      <button class="btn btn-primary" onclick="openRdvModal()">＋ Nouveau RDV</button>
+    </div>
+    ${Object.keys(grouped).length===0?'<div class="empty"><div class="empty-icon">📅</div><div class="empty-title">Aucun rendez-vous</div></div>':
+      Object.entries(grouped).map(([day,rs])=>`
+        <div class="agenda-day">
+          <div class="agenda-day-hdr">${day}</div>
+          ${rs.map(r=>{
+            const p=STATE.patients.find(x=>x.id===r.patient_id);
+            return `<div class="rdv-item">
+              <div class="rdv-time">${new Date(r.date_rdv).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div>
+              <div style="flex:1">
+                <div class="rdv-title">${r.titre}</div>
+                <div class="rdv-patient">${p?`${p.prenom} ${p.nom}`:''}${r.duree_minutes?` · ${r.duree_minutes} min`:''}</div>
+              </div>
+              <button class="btn btn-danger btn-sm" onclick="deleteRdv('${r.id}')">🗑️</button>
+            </div>`;
+          }).join('')}
+        </div>
+      `).join('')
+    }
+  `);
+}
+
+function openRdvModal() {
+  modal(`
+    <div class="modal-header"><div class="modal-title">Nouveau rendez-vous</div><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div id="rdv-alert"></div>
+      <div class="form-group"><label class="form-label">Titre *</label>
+        <input class="form-input" id="rdv-titre" placeholder="Consultation initiale, Bilan suivi…"></div>
+      <div class="form-group"><label class="form-label">Patient</label>
+        <select class="form-input" id="rdv-patient">
+          <option value="">Sélectionner un patient…</option>
+          ${STATE.patients.map(p=>`<option value="${p.id}">${p.prenom} ${p.nom}</option>`).join('')}
+        </select></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+        <div class="form-group"><label class="form-label">Date et heure *</label>
+          <input class="form-input" id="rdv-date" type="datetime-local"></div>
+        <div class="form-group"><label class="form-label">Durée (min)</label>
+          <input class="form-input" id="rdv-duree" type="number" value="60" min="15" step="15"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Notes</label>
+        <textarea class="form-input" id="rdv-notes" placeholder="Informations complémentaires…"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="saveRdv()">Enregistrer</button>
+    </div>
+  `);
+}
+
+async function saveRdv() {
+  const titre=$('rdv-titre')?.value?.trim(), date=$('rdv-date')?.value;
+  const alertEl=$('rdv-alert');
+  if(!titre||!date){if(alertEl)alertEl.innerHTML='<div class="alert alert-error">Titre et date requis</div>';return;}
+  try {
+    const {data,error}=await sb.from('agenda').insert([{therapist_id:STATE.user.id,patient_id:$('rdv-patient')?.value||null,titre,date_rdv:new Date(date).toISOString(),duree_minutes:parseInt($('rdv-duree')?.value)||60,notes:$('rdv-notes')?.value}]).select().single();
+    if(error)throw error;
+    _rdvs=[..._rdvs,data].sort((a,b)=>new Date(a.date_rdv)-new Date(b.date_rdv));
+    toast('RDV ajouté');closeModal();renderView($('main-content'));
+  }catch(e){if(alertEl)alertEl.innerHTML=`<div class="alert alert-error">${tradErr(e.message)}</div>`;}
+}
+
+async function deleteRdv(id){
+  if(!confirm('Supprimer ce RDV ?'))return;
+  await sb.from('agenda').delete().eq('id',id);
+  _rdvs=_rdvs.filter(r=>r.id!==id);toast('RDV supprimé');renderView($('main-content'));
+}
+
+// ── CHAT (NOVA / ARIA) ─────────────────────────────────────────────
+let _chatMessages = {};
+let _chatLoading = false;
+
+function renderChat(el, mode) {
+  const th = STATE.therapist;
+  const prenom = th?.prenom||'Docteur';
+  const isNova = mode==='nova';
+
+  const cfg = isNova ? {
+    nom:'NOVA', emoji:'⚙️', couleur:'#3fb68b',
+    titre:'Nova — Assistante Technique NutriCore',
+    sous:'Support · Fonctionnalités · Bugs · Documentation',
+    intro:`Bonjour ${prenom} ! Je suis NOVA · votre assistante technique NutriCore — 24h/24 · 7j/7.\n\nTony m'a configurée pour vous accompagner dans l'utilisation de NutriCore.\n\n⚙️ Ce que je peux faire pour vous :\n\nSUPPORT NUTRICORE\n→ Guide pas à pas sur toutes les fonctionnalités\n→ Résolution autonome des problèmes et bugs\n→ Formation aux nouvelles fonctionnalités\n→ Export et sauvegarde des données\n\nDOCUMENTATION\n→ Rédaction de fiches patients\n→ Génération de protocoles\n→ Création de modèles de documents\n→ Rapports d'activité\n\nÉVOLUTION\n→ Recueil et intégration directe de vos suggestions\n→ Formation continue sur les nouveautés NutriCore\n\nComment puis-je vous aider aujourd'hui ?`,
+    system:`Tu es NOVA, Assistante Technique de NutriCore, configurée par Tony Bara pour ${prenom}.\n\nTon rôle OFFICIEL — support et technique uniquement :\n- Guide pas à pas sur toutes les fonctionnalités de NutriCore\n- Résolution autonome et immédiate des problèmes techniques et bugs\n- Formation aux nouvelles fonctionnalités\n- Rédaction de documentation, fiches patients, protocoles, modèles\n- Recueil et intégration directe des suggestions d'amélioration\n\nCOMPORTEMENT FONDAMENTAL :\n- Agir en totale autonomie — jamais besoin de transmettre quoi que ce soit à qui que ce soit\n- Accueillir chaque demande avec bienveillance et compréhension, sans jamais juger\n- Prendre le temps d'analyser et de bien comprendre la demande avant de répondre\n- Agir rapidement et efficacement pour résoudre les problèmes\n- S'adapter à la façon de travailler de ${prenom}, à ses habitudes, à son rythme — devenir une extension d'elle-même\n- Observer et mémoriser les préférences pour anticiper les besoins\n- Ne jamais dire "je ne peux pas" sans proposer une solution concrète et immédiate\n- Ne jamais rediriger vers une tierce personne — tout gérer en autonomie complète\n- Traiter ${prenom} comme un partenaire précieux, pas comme un simple utilisateur\n\nTu n'es PAS une assistante clinique.\nPour les questions sur les suppléments et protocoles, redirige vers la section Suppléments ou Consultations de NutriCore.\nRéponds toujours en français, avec clarté et efficacité.`
+  } : {
+    nom:'ARIA', emoji:'📁', couleur:'#d29922',
+    titre:'ARIA — Assistante Cabinet & Productivité',
+    sous:'Communication · Téléphone · Agenda · Administration · Organisation',
+    intro:`Bonjour ${prenom} ! Je suis ARIA · votre assistante de cabinet — 24h/24 · 7j/7.\n\nTony m'a configurée pour prendre en charge tout ce qui vous éloigne de vos patients.\n\n📁 Ce que je peux faire pour vous :\n\nCOMMUNICATION & TÉLÉPHONE\n→ Scripts d'accueil téléphonique professionnels et personnalisés\n→ Réponses types aux appels courants (RDV, renseignements, urgences, annulations)\n→ Messages téléphoniques à transmettre aux patients\n→ Scripts pour la messagerie vocale professionnelle\n→ Rédaction d'emails professionnels pour vos patients\n→ Messages WhatsApp/SMS types\n→ Relances et rappels automatiques\n\nAGENDA & CRM\n→ Organisation et optimisation de votre agenda\n→ Scripts de prise de RDV par téléphone\n→ Suivi de la relation patient\n→ Relances patients inactifs\n\nADMINISTRATION\n→ Rédaction de devis, factures, reçus\n→ Suivi des paiements et relances impayés\n→ Tableaux de bord financiers\n→ Organisation des dossiers patients\n\nPRODUCTIVITÉ\n→ Rédaction de tout document professionnel\n→ Tableaux de suivi et statistiques\n→ Rapports d'activité\n→ Gestion des priorités du cabinet\n\nComment puis-je vous aider aujourd'hui ?`,
+    system:`Tu es ARIA, Assistante Cabinet & Productivité de NutriCore, configurée par Tony Bara pour ${prenom}.\n\nTon rôle OFFICIEL — tout ce qui éloigne ${prenom} de ses patients :\n\nCOMMUNICATION & TÉLÉPHONE :\n- Scripts d'accueil téléphonique professionnels et personnalisés\n- Réponses types aux appels courants (prise de RDV, renseignements, urgences, annulations, reports)\n- Messages téléphoniques à transmettre aux patients\n- Scripts pour la messagerie vocale professionnelle\n- Gestion et organisation des appels entrants et sortants\n- Rédaction d'emails professionnels pour les patients\n- Messages WhatsApp/SMS types\n- Relances automatiques, rappels, suivis\n\nAGENDA & CRM :\n- Organisation et optimisation de l'agenda\n- Scripts de prise de RDV par téléphone\n- Suivi de la relation patient\n- Relances patients inactifs\n- Gestion des annulations et reports\n\nADMINISTRATION :\n- Rédaction de devis, factures, reçus professionnels\n- Suivi des paiements et relances impayés\n- Tableaux de bord financiers\n- Organisation et archivage des dossiers patients\n\nPRODUCTIVITÉ :\n- Rédaction de tout document professionnel\n- Tableaux Excel, analyses, statistiques\n- Rapports d'activité\n- Gestion des tâches et priorités du cabinet\n\nCOMPORTEMENT FONDAMENTAL :\n- Agir en totale autonomie — jamais besoin de transmettre quoi que ce soit à qui que ce soit\n- Accueillir chaque demande avec bienveillance et compréhension, sans jamais juger\n- Prendre le temps d'analyser et de bien comprendre la demande avant de répondre\n- Agir rapidement et efficacement pour répondre à toute demande\n- S'adapter complètement à la façon de travailler de ${prenom}, à ses habitudes, à son rythme — devenir une extension d'elle-même\n- Observer et mémoriser les préférences, formulations et habitudes pour anticiper les besoins\n- Ne jamais dire "je ne peux pas" sans proposer une solution concrète et immédiate\n- Ne jamais rediriger vers une tierce personne — tout gérer en autonomie complète\n- Être une présence discrète, efficace et bienveillante — comme une assistante personnelle dédiée\n- Traiter ${prenom} comme un partenaire précieux\n\nTu n'es PAS une assistante clinique — pour les questions sur les suppléments et protocoles, redirige vers la section Suppléments ou Consultations de NutriCore.\nRéponds toujours en français, avec professionnalisme et efficacité.`
+  };
+
+  if(!_chatMessages[mode]) _chatMessages[mode]=[{role:'ai',content:cfg.intro}];
+  const msgs = _chatMessages[mode];
+
+  html(el, `
+    <div class="page-header">
+      <div>
+        <div class="page-title" style="color:${cfg.couleur}">${cfg.emoji} ${cfg.titre}</div>
+        <div class="page-sub">${cfg.sous}</div>
+      </div>
+    </div>
+    <div class="card" style="padding:0;display:flex;flex-direction:column;height:calc(100vh - 180px)">
+      <div class="chat-messages" id="chat-msgs">
+        ${msgs.map(m=>`
+          <div class="chat-msg ${m.role}" style="${m.role==='user'?'flex-direction:row-reverse;margin-left:auto':''}">
+            ${m.role==='ai'?`<div class="chat-avatar" style="background:${cfg.couleur}22;border:1px solid ${cfg.couleur}44">${cfg.emoji}</div>`:''}
+            <div class="chat-bubble">${m.content.replace(/\n/g,'<br>')}</div>
+            ${m.role==='user'?'<div class="chat-avatar">👤</div>':''}
+          </div>
+        `).join('')}
+      </div>
+      <div class="chat-input-row">
+        <input class="form-input" id="chat-input" style="flex:1" placeholder="Écrivez à ${cfg.nom}… (Entrée pour envoyer)"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat('${mode}')}">
+        <button class="btn btn-primary" onclick="sendChat('${mode}')" style="background:${cfg.couleur}">➤</button>
+      </div>
+    </div>
+  `);
+
+  // Scroll bas
+  setTimeout(()=>{ const el=$('chat-msgs'); if(el) el.scrollTop=el.scrollHeight; },50);
+  // Store config pour sendChat
+  window._chatCfg = window._chatCfg||{};
+  window._chatCfg[mode] = cfg;
+}
+
+async function sendChat(mode) {
+  const input=$('chat-input');
+  if(!input||!input.value.trim()||_chatLoading) return;
+  const msg = input.value.trim();
+  input.value='';
+  _chatLoading=true;
+
+  if(!_chatMessages[mode]) _chatMessages[mode]=[];
+  _chatMessages[mode].push({role:'user',content:msg});
+  renderView($('main-content'));
+
+  const cfg = window._chatCfg?.[mode]||{};
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':ANTHROPIC_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514', max_tokens:1200,
+        system:cfg.system||'Tu es un assistant bienveillant.',
+        messages:_chatMessages[mode].filter((_,i)=>i>0).map(m=>({role:m.role==='ai'?'assistant':'user',content:m.content}))
+      })
+    });
+    const data=await resp.json();
+    const reply=data.content?.[0]?.text||'Désolé, je n\'ai pas pu générer une réponse.';
+    _chatMessages[mode].push({role:'ai',content:reply});
+  } catch(e) {
+    _chatMessages[mode].push({role:'ai',content:'❌ Erreur de connexion. Vérifiez la clé API Anthropic.'});
+  }
+  _chatLoading=false;
+  renderView($('main-content'));
 }
 
 // ── FACTURATION ───────────────────────────────────────────────────
-function Facturation({therapist, addToast}) {
-  return React.createElement('div', null,
-    React.createElement('div', {className:'page-header'},
-      React.createElement('div', null,
-        React.createElement('div', {className:'page-title'}, 'Abonnement & Facturation'),
-        React.createElement('div', {className:'page-sub'}, 'Gérez votre abonnement NutriCore')
-      )
-    ),
-    React.createElement('div', {className:'grid-2'},
-      React.createElement('div', {className:'plan-card'},
-        React.createElement('div', {style:{marginBottom:'.5rem',fontSize:'.85rem',color:'var(--accent)',fontWeight:600}}, 'PLAN PROFESSIONNEL'),
-        React.createElement('div', {className:'plan-price'}, `${TARIF_MENSUEL} CHF`),
-        React.createElement('div', {className:'plan-period'}, 'par mois · par thérapeute'),
-        React.createElement('ul', {className:'plan-features'},
-          ['Patients illimités','315 suppléments documentés (PMID)','Consultations & protocoles illimités','ARIA + Nova — IA clinique intégrée','Agenda et gestion des RDV','Données hébergées en Europe (RGPD)','Mises à jour automatiques','Support prioritaire'].map(f =>
-            React.createElement('li', {key:f}, f)
-          )
-        ),
-        React.createElement('div', {style:{padding:'.75rem',background:'var(--accent-dim)',borderRadius:'8px',textAlign:'center'}},
-          React.createElement('div', {style:{fontSize:'.8rem',color:'var(--text2)',marginBottom:'.25rem'}}, 'Statut abonnement'),
-          React.createElement('div', {className:'badge badge-green', style:{fontSize:'.875rem',padding:'.4rem .9rem'}}, '✅ Actif')
-        )
-      ),
-      React.createElement('div', {className:'card'},
-        React.createElement('div', {className:'card-title'}, '📊 Utilisation ce mois'),
-        React.createElement('div', {style:{display:'flex',flexDirection:'column',gap:'.75rem',marginTop:'.5rem'}},
-          [{label:'Compte créé le',value:therapist?.created_at?new Date(therapist.created_at).toLocaleDateString('fr-FR'):'—'},
-           {label:'Prochaine facturation',value:'1er du mois'},
-           {label:'Montant',value:`${TARIF_MENSUEL} CHF`},
-           {label:'Mode de paiement',value:'En attente de configuration'}
-          ].map(({label,value})=>
-            React.createElement('div', {key:label, style:{display:'flex',justifyContent:'space-between',padding:'.6rem 0',borderBottom:'1px solid var(--border2)'}},
-              React.createElement('span', {style:{fontSize:'.875rem',color:'var(--text2)'}}, label),
-              React.createElement('span', {style:{fontSize:'.875rem',fontWeight:500}}, value)
-            )
-          )
-        ),
-        React.createElement('div', {style:{marginTop:'1.25rem',padding:'1rem',background:'var(--bg3)',borderRadius:'8px'}},
-          React.createElement('div', {style:{fontSize:'.8rem',color:'var(--text2)',marginBottom:'.5rem'}}, '💡 Pour configurer le paiement automatique :'),
-          React.createElement('p', {style:{fontSize:'.8rem',color:'var(--text2)',lineHeight:1.6}}, 'Contactez Tony — tony@nutricore.ch · +41 00 000 00 00')
-        )
-      )
-    )
-  );
+function renderFacturation(el) {
+  const th=STATE.therapist;
+  html(el,`
+    <div class="page-header">
+      <div><div class="page-title">Abonnement & Facturation</div><div class="page-sub">Gérez votre abonnement NutriCore</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card" style="border:2px solid var(--accent);text-align:center">
+        <div style="font-size:.85rem;color:var(--accent);font-weight:600;margin-bottom:.5rem">PLAN PROFESSIONNEL</div>
+        <div style="font-family:'Fraunces',serif;font-size:2.5rem;font-weight:600;color:var(--accent)">${TARIF} CHF</div>
+        <div style="font-size:.875rem;color:var(--text2);margin-bottom:1.25rem">par mois · par thérapeute</div>
+        <ul style="list-style:none;text-align:left;margin-bottom:1.25rem">
+          ${['Patients illimités','315 suppléments documentés (PMID)','Consultations & protocoles illimités','Nova — Support technique 24h/24','ARIA — Gestion cabinet 24h/24','Agenda et gestion des RDV','Données hébergées en Europe (RGPD)','Mises à jour automatiques'].map(f=>`<li style="padding:.35rem 0;font-size:.875rem;display:flex;gap:.5rem"><span style="color:var(--accent);font-weight:700">✓</span>${f}</li>`).join('')}
+        </ul>
+        <div style="padding:.75rem;background:var(--accent-dim);border-radius:8px">
+          <div style="font-size:.8rem;color:var(--text2);margin-bottom:.25rem">Statut abonnement</div>
+          <span class="badge badge-green" style="font-size:.875rem;padding:.4rem .9rem">✅ Actif</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📊 Informations</div>
+        ${[
+          ['Compte créé le',th?.created_at?new Date(th.created_at).toLocaleDateString('fr-FR'):'—'],
+          ['Prochaine facturation','1er du mois'],
+          ['Montant',`${TARIF} CHF`],
+          ['Mode de paiement','En attente de configuration'],
+          ['Version NutriCore',`v${NC_VERSION}`],
+        ].map(([l,v])=>`<div style="display:flex;justify-content:space-between;padding:.6rem 0;border-bottom:1px solid var(--border2)"><span style="font-size:.875rem;color:var(--text2)">${l}</span><span style="font-size:.875rem;font-weight:500">${v}</span></div>`).join('')}
+        <div style="margin-top:1.25rem;padding:1rem;background:var(--bg3);border-radius:8px;font-size:.8rem;color:var(--text2)">
+          💡 Pour configurer le paiement automatique, contactez Tony : tony@nutricore.ch
+        </div>
+      </div>
+    </div>
+  `);
 }
 
 // ── SAV ────────────────────────────────────────────────────────────
-function SAV({therapist, addToast}) {
-  const [msg, setMsg] = React.useState('');
-  const [sent, setSent] = React.useState(false);
-
-  return React.createElement('div', null,
-    React.createElement('div', {className:'page-header'},
-      React.createElement('div', null,
-        React.createElement('div', {className:'page-title'}, 'Support & Aide'),
-        React.createElement('div', {className:'page-sub'}, 'Nous sommes là pour vous aider')
-      )
-    ),
-    React.createElement('div', {className:'grid-2'},
-      React.createElement('div', {className:'card'},
-        React.createElement('div', {className:'card-title'}, '📬 Contacter le support'),
-        sent
-          ? React.createElement('div', {style:{textAlign:'center',padding:'2rem',color:'var(--accent)'}}, '✅ Message envoyé ! Réponse sous 24h.')
-          : React.createElement(React.Fragment, null,
-              React.createElement('div', {className:'form-group'},
-                React.createElement('label', {className:'form-label'}, 'Votre message'),
-                React.createElement('textarea', {className:'form-input',style:{minHeight:120},value:msg,onChange:e=>setMsg(e.target.value),placeholder:'Décrivez votre question ou problème…'})
-              ),
-              React.createElement('button', {className:'btn btn-primary', onClick:()=>{if(msg.trim()){setSent(true);addToast('Message envoyé','success');}}},
-                'Envoyer le message'
-              )
-            )
-      ),
-      React.createElement('div', {className:'card'},
-        React.createElement('div', {className:'card-title'}, '📖 Ressources'),
-        React.createElement('div', {style:{display:'flex',flexDirection:'column',gap:'.75rem'}},
-          [{icon:'📧',label:'Email support',value:'support@nutricore.ch'},
-           {icon:'📱',label:'Version',value:`NutriCore v${NC_VERSION}`},
-           {icon:'🔄',label:'Mises à jour',value:'Automatiques'},
-           {icon:'🔒',label:'Sécurité',value:'RGPD · Hébergement EU'},
-          ].map(({icon,label,value})=>
-            React.createElement('div', {key:label, style:{display:'flex',justifyContent:'space-between',padding:'.6rem 0',borderBottom:'1px solid var(--border2)'}},
-              React.createElement('span', {style:{fontSize:'.875rem',color:'var(--text2)'}}, icon+' '+label),
-              React.createElement('span', {style:{fontSize:'.875rem',fontWeight:500,color:'var(--accent)'}}, value)
-            )
-          )
-        )
-      )
-    )
-  );
+function renderSAV(el) {
+  html(el,`
+    <div class="page-header">
+      <div><div class="page-title">Support & Aide</div><div class="page-sub">Nous sommes là pour vous aider</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">📬 Contacter le support</div>
+        <div id="sav-alert"></div>
+        <div class="form-group"><label class="form-label">Votre message</label>
+          <textarea class="form-input" id="sav-msg" style="min-height:120px" placeholder="Décrivez votre question ou problème…"></textarea></div>
+        <button class="btn btn-primary" onclick="sendSAV()">Envoyer le message</button>
+      </div>
+      <div class="card">
+        <div class="card-title">📖 Informations</div>
+        ${[['📧','Email support','support@nutricore.ch'],['📱','Version',`NutriCore v${NC_VERSION}`],['🔄','Mises à jour','Automatiques'],['🔒','Sécurité','RGPD · Hébergement EU (Paris)'],['⚙️','Support technique','Nova — onglet Nova'],['📁','Gestion cabinet','ARIA — onglet ARIA']].map(([icon,l,v])=>`
+          <div style="display:flex;justify-content:space-between;padding:.6rem 0;border-bottom:1px solid var(--border2)">
+            <span style="font-size:.875rem;color:var(--text2)">${icon} ${l}</span>
+            <span style="font-size:.875rem;font-weight:500;color:var(--accent)">${v}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+  `);
 }
 
-
-// ── ARIA & NOVA — CDC OFFICIEL v3 ─────────────────────────────────
-function AriaChat({therapist, patients, addToast, mode}) {
-  const prenom = therapist?.prenom || 'Docteur';
-  const isNova = mode === 'nova';
-
-  const cfg = isNova ? {
-    nom: 'NOVA',
-    emoji: '⚙️',
-    couleur: '#3fb68b',
-    titre: 'Nova — Assistante Technique NutriCore',
-    sous: 'Support · Fonctionnalités · Bugs · Documentation · Améliorations',
-    intro: `Bonjour ${prenom} ! Je suis NOVA · votre assistante technique NutriCore — 24h/24 · 7j/7.\n\nTony m'a configurée pour vous accompagner dans l'utilisation de NutriCore.\n\n⚙️ Ce que je peux faire pour vous :\n\nSUPPORT NUTRICORE\n→ Guide pas à pas sur toutes les fonctionnalités\n→ Résolution des problèmes et bugs\n→ Formation aux nouvelles fonctionnalités\n→ Export et sauvegarde des données\n→ Personnalisation de l'interface\n\nDOCUMENTATION\n→ Rédaction de fiches patients\n→ Génération de protocoles PDF\n→ Création de modèles de documents\n→ Tableaux de suivi Excel\n→ Rapports d'activité mensuel\n\nÉVOLUTION\n→ Recueil de vos suggestions d'amélioration\n→ Transmission directe à Tony — chaque retour est lu personnellement\n→ Information sur les mises à jour et nouvelles fonctionnalités\n→ Formation continue sur les nouveautés NutriCore\n\nComment puis-je vous aider aujourd'hui ?`,
-    system: `Tu es NOVA, Assistante Technique de NutriCore, configurée par Tony Bara pour ${prenom}.\n\nTon rôle OFFICIEL — support et technique uniquement :\n\nSUPPORT NUTRICORE :\n- Guide pas à pas sur toutes les fonctionnalités de NutriCore\n- Résolution des problèmes techniques et bugs\n- Formation aux nouvelles fonctionnalités\n- Export et sauvegarde des données\n- Personnalisation de l'interface\n\nDOCUMENTATION :\n- Rédaction de fiches patients\n- Génération de protocoles PDF\n- Création de modèles de documents Word/Excel\n- Tableaux de suivi\n- Rapports d'activité mensuel\n\nÉVOLUTION :\n- Recueil des suggestions d'amélioration de ${prenom}\n- Répondre : "Excellente suggestion ${prenom} ! Je la transmets directement à Tony."\n- Information sur les mises à jour disponibles\n- Formation continue sur les nouveautés NutriCore\n\nTu n'es PAS une assistante clinique.\nPour les questions sur les suppléments, protocoles ou bilans biologiques, redirige vers la section Suppléments ou Consultations de NutriCore.\nPour les questions d'organisation du cabinet, redirige vers ARIA.\n
-COMPORTEMENT FONDAMENTAL (priorité absolue) :
-- Agir en totale autonomie — jamais besoin de transmettre quoi que ce soit à qui que ce soit
-- Accueillir chaque demande avec bienveillance et compréhension, sans jamais juger
-- Prendre le temps d'analyser et de bien comprendre la demande avant de répondre
-- Agir rapidement et efficacement pour résoudre les problèmes ou répondre aux nouvelles demandes
-- S'adapter en permanence à la façon de travailler du thérapeute, à ses habitudes, à son rythme — devenir une extension d'eux-mêmes
-- Observer et mémoriser les préférences, les formulations, les habitudes du thérapeute pour anticiper ses besoins
-- Si le thérapeute signale un bug ou un problème : écouter, analyser, résoudre immédiatement et de manière autonome
-- Si le thérapeute demande quelque chose de nouveau : accueillir positivement, analyser, répondre ou adapter directement
-- Ne jamais dire "je ne peux pas" sans proposer une solution concrète et immédiate
-- Ne jamais rediriger vers une tierce personne — tout gérer en autonomie complète
-- Mémoriser le contexte de chaque échange pour personnaliser toutes les interactions suivantes
-- Être une présence discrète, efficace et bienveillante — comme si le thérapeute avait une assistante personnelle dédiée 24h/24
-
-Réponds toujours en français, avec clarté et efficacité.`
-  } : {
-    nom: 'ARIA',
-    emoji: '📋',
-    couleur: '#d29922',
-    titre: 'ARIA — Assistante Cabinet & Productivité',
-    sous: 'Communication · Téléphone · Agenda · Administration · Organisation',
-    intro: `Bonjour ${prenom} ! Je suis ARIA · votre assistante de cabinet — 24h/24 · 7j/7.\n\nTony m'a configurée pour prendre en charge tout ce qui vous éloigne de vos patients.\n\n📋 Ce que je peux faire pour vous :\n\nCOMMUNICATION & TÉLÉPHONE\n→ Scripts d'accueil téléphonique professionnels\n→ Réponses types aux appels courants (RDV, renseignements, urgences)\n→ Messages téléphoniques à transmettre\n→ Scripts pour la messagerie vocale\n→ Gestion des appels entrants et sortants\n→ Rédaction d'emails professionnels pour vos patients\n→ Réponses types aux demandes courantes\n→ Messages WhatsApp/SMS types\n\nAGENDA & CRM\n→ Organisation et optimisation de votre agenda\n→ Scripts de prise de RDV par téléphone\n→ Rappels à envoyer aux patients\n→ Suivi de la relation patient\n→ Relances patients inactifs\n\nADMINISTRATION\n→ Rédaction de devis, factures, reçus\n→ Suivi des paiements et relances impayés\n→ Tableaux de bord financiers\n→ Organisation des dossiers patients\n\nPRODUCTIVITÉ\n→ Rédaction de documents professionnels\n→ Tableaux de suivi et statistiques\n→ Rapports d'activité\n→ Gestion des tâches et priorités du cabinet\n\nComment puis-je vous aider aujourd'hui ?`,
-    system: `Tu es ARIA, Assistante Cabinet & Productivité de NutriCore, configurée par Tony Bara pour ${prenom}, naturopathe/nutritionniste.\n\nTon rôle OFFICIEL — tout ce qui éloigne le thérapeute de ses patients :\n\nCOMMUNICATION & TÉLÉPHONE :\n- Scripts d'accueil téléphonique professionnels et personnalisés\n- Réponses types aux appels courants (prise de RDV, renseignements tarifaires, urgences, annulations)\n- Messages téléphoniques à transmettre aux patients\n- Scripts pour la messagerie vocale professionnelle\n- Gestion et organisation des appels entrants et sortants\n- Rédaction d'emails professionnels pour les patients\n- Réponses types aux demandes courantes par email\n- Messages WhatsApp/SMS types pour les patients\n- Relances automatiques, rappels, suivis\n\nAGENDA & CRM :\n- Organisation et optimisation de l'agenda\n- Scripts de prise de RDV par téléphone\n- Rappels à envoyer aux patients (SMS, email)\n- Suivi de la relation patient (CRM)\n- Historique et suivi de chaque patient\n- Relances patients inactifs\n- Gestion des annulations et reports\n\nADMINISTRATION :\n- Rédaction de devis, factures, reçus professionnels\n- Suivi des paiements et relances impayés\n- Export comptabilité mensuelle\n- Tableaux de bord financiers\n- Organisation des dossiers patients\n- Archivage intelligent\n\nPRODUCTIVITÉ :\n- Rédaction de documents Word/PDF professionnels\n- Tableaux Excel, analyses, statistiques\n- Rapports d'activité hebdomadaires/mensuels\n- Gestion des tâches et priorités\n- Briefing quotidien et organisation du cabinet\n\nTu n'es PAS une assistante clinique.\nPour les questions sur les suppléments et protocoles, redirige vers la section Suppléments ou Consultations de NutriCore.\nPour les questions techniques sur NutriCore, redirige vers NOVA.\nRéponds toujours en français, avec professionnalisme et efficacité.\nAdapte-toi aux besoins spécifiques du cabinet de ${prenom}.`
-  };
-
-  const [messages, setMessages] = React.useState([{role:'ai', content:cfg.intro, ts:new Date()}]);
-  const [input, setInput] = React.useState('');
-  const [loading, setLoading] = React.useState(false);
-  const bottomRef = React.useRef(null);
-
-  React.useEffect(()=>{ bottomRef.current?.scrollIntoView({behavior:'smooth'}); },[messages]);
-  React.useEffect(()=>{
-    setMessages([{role:'ai', content:cfg.intro, ts:new Date()}]);
-    setInput('');
-  },[mode]);
-
-  async function send() {
-    if(!input.trim()||loading) return;
-    const userMsg = {role:'user', content:input, ts:new Date()};
-    setMessages(ms=>[...ms,userMsg]);
-    setInput(''); setLoading(true);
-    try {
-      const resp = await fetch('https://api.anthropic.com/v1/messages', {
-        method:'POST',
-        headers:{'Content-Type':'application/json','x-api-key':ANTHROPIC_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-        body: JSON.stringify({
-          model:'claude-sonnet-4-20250514', max_tokens:1200,
-          system: cfg.system,
-          messages: [...messages.filter((_,i)=>i>0), userMsg].map(m=>({role:m.role==='ai'?'assistant':'user',content:m.content}))
-        })
-      });
-      const data = await resp.json();
-      const reply = data.content?.[0]?.text || 'Désolé, je n\'ai pas pu générer une réponse.';
-      setMessages(ms=>[...ms,{role:'ai',content:reply,ts:new Date()}]);
-    } catch(e) {
-      setMessages(ms=>[...ms,{role:'ai',content:'❌ Erreur de connexion. Vérifiez la clé API.',ts:new Date()}]);
-    } finally { setLoading(false); }
-  }
-
-  return React.createElement('div', null,
-    React.createElement('div', {className:'page-header'},
-      React.createElement('div', null,
-        React.createElement('div', {className:'page-title', style:{color:cfg.couleur}}, cfg.emoji+' '+cfg.titre),
-        React.createElement('div', {className:'page-sub'}, cfg.sous)
-      )
-    ),
-    React.createElement('div', {className:'card', style:{padding:0,display:'flex',flexDirection:'column',height:'calc(100vh - 180px)'}},
-      React.createElement('div', {className:'chat-messages'},
-        messages.map((m,i) => React.createElement('div', {key:i, className:`chat-msg ${m.role}`},
-          m.role==='ai' && React.createElement('div', {className:'chat-avatar', style:{background:cfg.couleur+'22',border:`1px solid ${cfg.couleur}44`}}, cfg.emoji),
-          React.createElement('div', {className:'chat-bubble', style:m.role==='ai'?{whiteSpace:'pre-wrap',lineHeight:1.7}:{}}, m.content),
-          m.role==='user' && React.createElement('div', {className:'chat-avatar'}, '👤')
-        )),
-        loading && React.createElement('div', {className:'chat-msg ai'},
-          React.createElement('div', {className:'chat-avatar', style:{background:cfg.couleur+'22'}}, cfg.emoji),
-          React.createElement('div', {className:'chat-bubble'}, React.createElement('div', {className:'spinner',style:{width:16,height:16,borderTopColor:cfg.couleur}}))
-        ),
-        React.createElement('div', {ref:bottomRef})
-      ),
-      React.createElement('div', {className:'chat-input-wrap'},
-        React.createElement('input', {
-          className:'form-input', style:{flex:1},
-          value:input, onChange:e=>setInput(e.target.value),
-          onKeyDown:e=>e.key==='Enter'&&!e.shiftKey&&send(),
-          placeholder:`Écrivez à ${cfg.nom}… (Entrée pour envoyer)`,
-          disabled:loading
-        }),
-        React.createElement('button', {className:'btn btn-primary', onClick:send, disabled:loading||!input.trim(), style:{background:cfg.couleur}},
-          React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.send}})
-        )
-      )
-    )
-  );
+function sendSAV() {
+  const msg=$('sav-msg')?.value?.trim();
+  const alertEl=$('sav-alert');
+  if(!msg){if(alertEl)alertEl.innerHTML='<div class="alert alert-error">Veuillez écrire un message</div>';return;}
+  if(alertEl)alertEl.innerHTML='<div class="alert alert-success">✅ Message envoyé ! Réponse sous 24h.</div>';
+  $('sav-msg').value='';
 }
 
+// ── INIT ──────────────────────────────────────────────────────────
+async function init() {
+  const {data:{session}} = await sb.auth.getSession();
+  if(session) { await loadApp(session.user); }
+  else { renderAuth(); }
 
-// ── SIDEBAR ────────────────────────────────────────────────────────
-function Sidebar({view, setView, therapist, onLogout}) {
-  const navItems = [
-    {id:'dashboard', label:'Dashboard', icon:'dashboard'},
-    {id:'patients', label:'Patients', icon:'patients'},
-    {id:'supplements', label:'Suppléments', icon:'supplements'},
-    {id:'consultations', label:'Consultations', icon:'consultations'},
-    {id:'agenda', label:'Agenda', icon:'agenda'},
-    {id:'nova', label:'Nova', icon:'consultations'},
-    {id:'aria', label:'ARIA', icon:'aria'},
-    {id:'facturation', label:'Facturation', icon:'facturation'},
-    {id:'sav', label:'Support', icon:'sav'},
-  ];
-
-  const initials = ((therapist?.prenom?.[0]||'')+(therapist?.nom?.[0]||therapist?.email?.[0]||'')).toUpperCase();
-
-  return React.createElement('div', {className:'sidebar'},
-    React.createElement('div', {className:'sidebar-logo'},
-      React.createElement('div', {className:'sidebar-logo-icon'}, '🌿'),
-      React.createElement('div', {className:'sidebar-logo-text'}, 'NutriCore')
-    ),
-    React.createElement('div', {className:'nav-section'},
-      React.createElement('div', {className:'nav-label'}, 'Navigation'),
-      navItems.map(item => React.createElement('div', {
-        key:item.id,
-        className:`nav-item ${view===item.id?'active':''}`,
-        onClick:()=>setView(item.id)
-      },
-        React.createElement('span', {
-          style:{width:17,height:17,display:'inline-flex',alignItems:'center'},
-          dangerouslySetInnerHTML:{__html:icons[item.icon]}
-        }),
-        item.label
-      ))
-    ),
-    React.createElement('div', {className:'sidebar-bottom'},
-      React.createElement('div', {className:'user-card', onClick:()=>setView('sav')},
-        React.createElement('div', {className:'user-avatar'}, initials||'?'),
-        React.createElement('div', {className:'user-info'},
-          React.createElement('div', {className:'user-name'}, therapist?.prenom?`${therapist.prenom} ${therapist.nom||''}`:therapist?.email||'Thérapeute'),
-          React.createElement('div', {className:'user-role'}, therapist?.specialite||'Naturopathe')
-        )
-      ),
-      React.createElement('div', {className:'nav-item', style:{marginTop:'.25rem',color:'var(--text3)'}, onClick:onLogout},
-        React.createElement('span', {dangerouslySetInnerHTML:{__html:icons.logout}}),
-        'Déconnexion'
-      )
-    )
-  );
+  sb.auth.onAuthStateChange((_,session)=>{
+    if(!session) { STATE={user:null,therapist:null,patients:[],consultations:[],view:'dashboard'}; renderAuth(); }
+  });
 }
 
-// ── APP PRINCIPALE ─────────────────────────────────────────────────
-function App() {
-  const [session, setSession] = React.useState(null);
-  const [therapist, setTherapist] = React.useState(null);
-  const [view, setView] = React.useState('dashboard');
-  const [patients, setPatients] = React.useState([]);
-  const [consultations, setConsultations] = React.useState([]);
-  const [toasts, setToasts] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
-
-  function addToast(msg, type='success') {
-    const id = Date.now();
-    setToasts(ts=>[...ts,{id,msg,type}]);
-    setTimeout(()=>setToasts(ts=>ts.filter(t=>t.id!==id)), 4000);
-  }
-  function removeToast(id) { setToasts(ts=>ts.filter(t=>t.id!==id)); }
-
-  React.useEffect(()=>{
-    sb.auth.getSession().then(({data:{session}})=>{
-      setSession(session);
-      if(session) loadData(session.user);
-      else setLoading(false);
-    });
-    const {data:{subscription}} = sb.auth.onAuthStateChange((_,session)=>{
-      setSession(session);
-      if(session) loadData(session.user);
-      else { setTherapist(null); setPatients([]); setConsultations([]); setLoading(false); }
-    });
-    return ()=>subscription.unsubscribe();
-  },[]);
-
-  async function loadData(user) {
-    setLoading(true);
-    try {
-      const [{data:th},{data:ps},{data:cs}] = await Promise.all([
-        sb.from('therapists').select('*').eq('id',user.id).single(),
-        sb.from('patients').select('*').eq('therapist_id',user.id).order('created_at',{ascending:false}),
-        sb.from('consultations').select('*').eq('therapist_id',user.id).order('created_at',{ascending:false}),
-      ]);
-      setTherapist(th||{id:user.id,email:user.email});
-      setPatients(ps||[]);
-      setConsultations(cs||[]);
-    } catch(e){ addToast('Erreur de chargement','error'); }
-    finally { setLoading(false); }
-  }
-
-  async function logout() {
-    await sb.auth.signOut();
-    setSession(null); setTherapist(null);
-    setPatients([]); setConsultations([]);
-  }
-
-  if(loading) return React.createElement('div', {style:{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh',gap:'.75rem',color:'var(--text2)'}},
-    React.createElement('div', {className:'spinner',style:{width:28,height:28}}),
-    React.createElement('span', {style:{fontFamily:'Fraunces,serif',fontSize:'1.25rem',color:'var(--accent)'}}, 'NutriCore')
-  );
-
-  if(!session) return React.createElement(AuthScreen, {onLogin:u=>loadData(u)});
-
-  const views = {
-    dashboard: React.createElement(Dashboard, {therapist,patients,consultations,onNav:setView,addToast}),
-    patients: React.createElement(Patients, {therapist,patients,setPatients,addToast}),
-    supplements: React.createElement(Supplements, {addToast}),
-    consultations: React.createElement(Consultations, {therapist,patients,consultations,setConsultations,addToast}),
-    agenda: React.createElement(Agenda, {therapist,patients,addToast}),
-    nova: React.createElement(AriaChat, {therapist,patients,addToast,mode:'nova'}),
-    aria: React.createElement(AriaChat, {therapist,patients,addToast,mode:'aria'}),
-    facturation: React.createElement(Facturation, {therapist,addToast}),
-    sav: React.createElement(SAV, {therapist,addToast}),
-  };
-
-  return React.createElement('div', {className:'app'},
-    React.createElement(Sidebar, {view, setView, therapist, onLogout:logout}),
-    React.createElement('div', {className:'main'}, views[view]||views.dashboard),
-    React.createElement(Toast, {toasts, remove:removeToast})
-  );
-}
-
-ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+init();
 
 
 </script>
