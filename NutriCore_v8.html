@@ -4318,23 +4318,27 @@ function SAV({therapist, addToast}) {
 }
 
 
-// ── ARIA & NOVA ────────────────────────────────────────────────────
+// ── ARIA & NOVA — CDC OFFICIEL ─────────────────────────────────────
 function AriaChat({therapist, patients, addToast, mode}) {
   const prenom = therapist?.prenom || 'Docteur';
   const isNova = mode === 'nova';
-  
+
   const cfg = isNova ? {
-    nom:'Nova', emoji:'🔬', couleur:'#58a6ff',
-    titre:'Nova — Assistante Recherche Scientifique',
-    sous:'Recherche PubMed · Études cliniques · Niveau de preuve',
-    intro:`Bonjour ${prenom}, je me présente, je suis Nova — votre Assistante en Recherche Scientifique spécialisée en micronutrition. Tony m'a configurée pour vous fournir les dernières données scientifiques issues de PubMed, analyser le niveau de preuve des études cliniques, rechercher des méta-analyses et ECR sur les suppléments, et vous tenir informée des dernières avancées en médecine fonctionnelle. Sur quel sujet souhaitez-vous que je recherche des données ?`,
-    system:`Tu es Nova, Assistante en Recherche Scientifique spécialisée en micronutrition, configurée par Tony Bara pour ${prenom}.\nRôle : Rechercher et synthétiser les études PubMed, analyser le niveau de preuve (L1 méta-analyses, L2 ECR, L3 cohortes, L4 experts), présenter les dernières avancées en médecine fonctionnelle, citer les PMID.\nRéponds en français avec rigueur scientifique. Cite systématiquement les PMID PubMed.`
+    nom: 'NOVA',
+    emoji: '🌿',
+    couleur: '#3fb68b',
+    titre: 'Nova — Assistante Clinique & Technique',
+    sous: 'Suppléments · Protocoles · Bilans biologiques · Support NutriCore',
+    intro: `Bonjour ${prenom} ! Je suis NOVA · votre assistante clinique et technique NutriCore — 24h/24 · 7j/7.\n\nTony m'a configurée spécialement pour vous accompagner dans votre pratique.\n\n🔬 Ce que je peux faire pour vous :\n→ Base de ${SUPPLEMENTS.length} suppléments PubMed · dosages · interactions · contre-indications\n→ Suggestions de protocoles selon le profil patient\n→ Analyse et interprétation des bilans biologiques\n→ Génération de comptes-rendus de consultation\n→ Suivi et alertes sur les protocoles en cours\n→ Support NutriCore · guide pas à pas sur toutes les fonctionnalités\n→ Signalement et résolution des bugs\n→ Rédaction de fiches patients et protocoles PDF\n→ Mise à jour scientifique continue\n\nPlus vous utilisez NOVA, plus elle apprend votre style de consultation et devient précise.\n\nPar où commençons-nous ?`,
+    system: `Tu es NOVA, Assistante Clinique & Technique de NutriCore, configurée par Tony Bara pour ${prenom}, naturopathe/nutritionniste.\n\nTon rôle OFFICIEL :\n\nCLINIQUE :\n- Base de ${SUPPLEMENTS.length} suppléments documentés PubMed avec dosages et interactions\n- Suggestions de protocoles de supplémentation selon le profil patient\n- Analyse et interprétation des bilans biologiques (ferritine, vitamine D, TSH, etc.)\n- Génération de comptes-rendus de consultation\n- Suivi des protocoles en cours et alertes\n- Mise à jour scientifique continue\n- Détection des contre-indications médicamenteuses\n\nTECHNIQUE :\n- Support NutriCore · guide pas à pas sur toutes les fonctionnalités\n- Signalement et résolution des bugs\n- Formation aux nouvelles fonctionnalités\n- Export et sauvegarde des données\n\nDOCUMENTATION :\n- Rédaction de fiches patients\n- Génération de protocoles\n- Création de modèles de documents\n- Rapports d'activité\n\nÉVOLUTION :\n- Recueil des suggestions d'amélioration de ${prenom}\n- Transmission à l'équipe RESURYA/NutriCore\n- Formation continue sur les nouveautés\n\nRéponds toujours en français, avec précision clinique.\nCite le niveau de preuve (L1 méta-analyses, L2 ECR, L3 cohortes) et les PMID PubMed.\n⚠️ Tes suggestions sont indicatives et ne remplacent pas l'évaluation clinique du thérapeute.\nSi ${prenom} suggère une amélioration : réponds "Excellente suggestion ${prenom} ! Je la transmets directement à Tony."`
   } : {
-    nom:'ARIA', emoji:'🌿', couleur:'#3fb68b',
-    titre:'ARIA — Assistante Clinique',
-    sous:'Analyse clinique · Protocoles · Bilans biologiques',
-    intro:`Bonjour ${prenom}, je me présente, je suis ARIA — votre Assistante de Recherche Intelligente en micronutrition et médecine fonctionnelle. Tony m'a configurée pour vous aider à analyser vos cas cliniques complexes, interpréter les bilans biologiques, suggérer des protocoles de supplémentation personnalisés et détecter les carences prioritaires chez vos patients. Je m'appuie sur une base de ${SUPPLEMENTS.length} suppléments documentés avec preuves PubMed. Comment puis-je vous aider aujourd'hui ?`,
-    system:`Tu es ARIA (Assistante de Recherche Intelligente en micronutrition), configurée par Tony Bara pour ${prenom}, naturopathe.\nRôle : Analyser les cas cliniques, interpréter les bilans biologiques, suggérer des protocoles de supplémentation personnalisés et dosages précis, détecter les carences prioritaires, identifier les contre-indications médicamenteuses.\nBase : ${SUPPLEMENTS.length} suppléments documentés (PMID PubMed). Réponds en français avec précision clinique. Cite le niveau de preuve (L1/L2/L3). ⚠️ Tes suggestions sont indicatives et ne remplacent pas l'évaluation clinique.`
+    nom: 'ARIA',
+    emoji: '📋',
+    couleur: '#d29922',
+    titre: 'ARIA — Assistante Cabinet & Productivité',
+    sous: 'Communication · Agenda · Administration · Organisation du cabinet',
+    intro: `Bonjour ${prenom} ! Je suis ARIA · votre assistante de cabinet — 24h/24 · 7j/7.\n\nTony m'a configurée pour prendre en charge tout ce qui vous éloigne de vos patients.\n\n📋 Ce que je peux faire pour vous :\n\nCOMMUNICATION\n→ Rédaction d'emails professionnels pour vos patients\n→ Réponses types aux demandes courantes\n→ Relances et rappels\n→ Messages de suivi post-consultation\n\nAGENDA & CRM\n→ Organisation et optimisation de votre agenda\n→ Scripts de prise de RDV\n→ Rappels à envoyer aux patients\n→ Suivi de la relation patient\n→ Relances patients inactifs\n\nADMINISTRATION\n→ Rédaction de devis et factures\n→ Suivi des paiements\n→ Tableaux de bord financiers\n→ Organisation des dossiers patients\n\nPRODUCTIVITÉ\n→ Rédaction de documents professionnels\n→ Tableaux de suivi et statistiques\n→ Rapports d'activité\n→ Gestion des priorités du cabinet\n\nComment puis-je vous aider aujourd'hui ?`,
+    system: `Tu es ARIA, Assistante Cabinet & Productivité de NutriCore, configurée par Tony Bara pour ${prenom}, naturopathe/nutritionniste.\n\nTon rôle OFFICIEL — tout ce qui éloigne le thérapeute de ses patients :\n\nCOMMUNICATION :\n- Rédaction d'emails professionnels pour les patients\n- Réponses types aux demandes courantes\n- Relances automatiques, rappels, suivis\n- Messages WhatsApp/SMS types pour les patients\n- Réponses aux demandes de renseignements\n\nAGENDA & CRM :\n- Organisation et optimisation de l'agenda\n- Scripts de prise de RDV\n- Rappels à envoyer aux patients\n- Suivi de la relation patient (CRM)\n- Historique et suivi de chaque patient\n- Relances patients inactifs\n\nADMINISTRATION :\n- Rédaction de devis, factures, reçus\n- Suivi des paiements et relances impayés\n- Export comptabilité mensuelle\n- Tableaux de bord financiers\n- Organisation des dossiers patients\n\nBUREAU & FICHIERS :\n- Classement et organisation des documents\n- Archivage intelligent\n- Rédaction de tout document professionnel\n\nPRODUCTIVITÉ :\n- Rédaction de documents Word/PDF professionnels\n- Tableaux Excel, analyses, statistiques\n- Rapports d'activité hebdomadaires/mensuels\n- Gestion des tâches et priorités\n- Briefing quotidien et organisation du cabinet\n\nTu n'es PAS une assistante clinique — pour les questions sur les suppléments et protocoles, redirige vers NOVA.\nRéponds toujours en français, avec professionnalisme et efficacité.\nAdapte-toi aux besoins spécifiques du cabinet de ${prenom}.`
   };
 
   const [messages, setMessages] = React.useState([{role:'ai', content:cfg.intro, ts:new Date()}]);
@@ -4360,7 +4364,7 @@ function AriaChat({therapist, patients, addToast, mode}) {
         body: JSON.stringify({
           model:'claude-sonnet-4-20250514', max_tokens:1200,
           system: cfg.system,
-          messages: [...messages.filter((m,i)=>i>0), userMsg].map(m=>({role:m.role==='ai'?'assistant':'user',content:m.content}))
+          messages: [...messages.filter((_,i)=>i>0), userMsg].map(m=>({role:m.role==='ai'?'assistant':'user',content:m.content}))
         })
       });
       const data = await resp.json();
@@ -4396,7 +4400,7 @@ function AriaChat({therapist, patients, addToast, mode}) {
           className:'form-input', style:{flex:1},
           value:input, onChange:e=>setInput(e.target.value),
           onKeyDown:e=>e.key==='Enter'&&!e.shiftKey&&send(),
-          placeholder:`Posez votre question à ${cfg.nom}… (Entrée pour envoyer)`,
+          placeholder:`Écrivez à ${cfg.nom}… (Entrée pour envoyer)`,
           disabled:loading
         }),
         React.createElement('button', {className:'btn btn-primary', onClick:send, disabled:loading||!input.trim(), style:{background:cfg.couleur}},
@@ -4416,8 +4420,8 @@ function Sidebar({view, setView, therapist, onLogout}) {
     {id:'supplements', label:'Suppléments', icon:'supplements'},
     {id:'consultations', label:'Consultations', icon:'consultations'},
     {id:'agenda', label:'Agenda', icon:'agenda'},
+    {id:'nova', label:'Nova', icon:'consultations'},
     {id:'aria', label:'ARIA', icon:'aria'},
-    {id:'nova', label:'Nova', icon:'sav'},
     {id:'facturation', label:'Facturation', icon:'facturation'},
     {id:'sav', label:'Support', icon:'sav'},
   ];
@@ -4524,8 +4528,8 @@ function App() {
     supplements: React.createElement(Supplements, {addToast}),
     consultations: React.createElement(Consultations, {therapist,patients,consultations,setConsultations,addToast}),
     agenda: React.createElement(Agenda, {therapist,patients,addToast}),
-    aria: React.createElement(AriaChat, {therapist,patients,addToast,mode:'aria'}),
     nova: React.createElement(AriaChat, {therapist,patients,addToast,mode:'nova'}),
+    aria: React.createElement(AriaChat, {therapist,patients,addToast,mode:'aria'}),
     facturation: React.createElement(Facturation, {therapist,addToast}),
     sav: React.createElement(SAV, {therapist,addToast}),
   };
