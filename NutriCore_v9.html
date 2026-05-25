@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NutriCore — Plateforme Clinique</title>
+<title>Naturia — Plateforme Clinique</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
@@ -3234,7 +3234,7 @@ function renderAuth(tab='login') {
       <div class="auth-card">
         <div class="auth-logo">
           <div class="auth-logo-icon">🌿</div>
-          <div class="auth-logo-text">NutriCore</div>
+          <div class="auth-logo-text">Naturia</div>
         </div>
         <div class="auth-tabs">
           <button class="auth-tab ${tab==='login'?'active':''}" onclick="renderAuth('login')">Connexion</button>
@@ -3369,6 +3369,7 @@ function renderApp() {
     {id:'supplements',label:'Suppléments',icon:'💊'},
     {id:'consultations',label:'Consultations',icon:'📋'},
     {id:'agenda',label:'Agenda',icon:'📅'},
+    {id:'alimentation',label:'Alimentation',icon:'🥗'},
     {id:'nova',label:'Nova',icon:'⚙️'},
     {id:'aria',label:'ARIA',icon:'📁'},
     {id:'facturation',label:'Facturation',icon:'💳'},
@@ -3380,7 +3381,7 @@ function renderApp() {
       <div class="sidebar">
         <div class="sidebar-logo">
           <div class="sidebar-logo-icon">🌿</div>
-          <div class="sidebar-logo-text">NutriCore</div>
+          <div class="sidebar-logo-text">Naturia</div>
         </div>
         <div class="nav-section">
           <div class="nav-label">Navigation</div>
@@ -3419,6 +3420,7 @@ function renderView(container) {
     case 'supplements': renderSupplements(container); break;
     case 'consultations': renderConsultations(container); break;
     case 'agenda': renderAgenda(container); break;
+    case 'alimentation': renderAlimentation(container); break;
     case 'nova': renderChat(container,'nova'); break;
     case 'aria': renderChat(container,'aria'); break;
     case 'facturation': renderFacturation(container); break;
@@ -4107,7 +4109,7 @@ async function sendChat(mode) {
   try {
     const resp = await fetch('https://openrouter.ai/api/v1/chat/completions',{
       method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+OR_KEY,'HTTP-Referer':'https://chaizelouis.github.io','X-Title':'NutriCore'},
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+OR_KEY,'HTTP-Referer':'https://chaizelouis.github.io','X-Title':'Naturia'},
       body:JSON.stringify({
         model:'claude-sonnet-4-20250514', max_tokens:1200,
         system:cfg.system||'Tu es un assistant bienveillant.',
@@ -4177,7 +4179,7 @@ function renderSAV(el) {
       </div>
       <div class="card">
         <div class="card-title">📖 Informations</div>
-        ${[['📧','Email support','support@nutricore.ch'],['📱','Version',`NutriCore v${NC_VERSION}`],['🔄','Mises à jour','Automatiques'],['🔒','Sécurité','RGPD · Hébergement EU (Paris)'],['⚙️','Support technique','Nova — onglet Nova'],['📁','Gestion cabinet','ARIA — onglet ARIA']].map(([icon,l,v])=>`
+        ${[['📧','Email support','support@nutricore.ch'],['📱','Version',`Naturia v${NC_VERSION}`],['🔄','Mises à jour','Automatiques'],['🔒','Sécurité','RGPD · Hébergement EU (Paris)'],['⚙️','Support technique','Nova — onglet Nova'],['📁','Gestion cabinet','ARIA — onglet ARIA']].map(([icon,l,v])=>`
           <div style="display:flex;justify-content:space-between;padding:.6rem 0;border-bottom:1px solid var(--border2)">
             <span style="font-size:.875rem;color:var(--text2)">${icon} ${l}</span>
             <span style="font-size:.875rem;font-weight:500;color:var(--accent)">${v}</span>
@@ -4199,15 +4201,367 @@ function sendSAV() {
 async function init() {
   const {data:{session}} = await sb.auth.getSession();
   if(session) { await loadApp(session.user); }
-  else { renderAuth(); }
+  else { renderSplash(); }
 
   sb.auth.onAuthStateChange((_,session)=>{
-    if(!session) { STATE={user:null,therapist:null,patients:[],consultations:[],view:'dashboard'}; renderAuth(); }
+    if(!session) { STATE={user:null,therapist:null,patients:[],consultations:[],view:'dashboard'}; renderSplash(); }
   });
 }
 
 init();
 
+
+
+// ── PAGE SPLASH ───────────────────────────────────────────────────
+function renderSplash() {
+  html($('root'), `
+    <div style="min-height:100vh;background:radial-gradient(ellipse at 20% 50%,rgba(63,182,139,0.12),transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(63,182,139,0.06),transparent 50%),var(--bg);display:flex;flex-direction:column">
+      
+      <!-- HEADER -->
+      <div style="padding:1.5rem 3rem;display:flex;align-items:center;justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:.75rem">
+          <div style="width:42px;height:42px;background:var(--accent-dim);border:1px solid var(--accent);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem">🌿</div>
+          <div style="font-family:'Fraunces',serif;font-size:1.4rem;color:var(--accent);font-weight:600">Naturia</div>
+        </div>
+        <button class="btn btn-secondary" onclick="renderAuth('login')" style="font-size:.85rem">Se connecter</button>
+      </div>
+
+      <!-- HERO -->
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem 1rem">
+        <div style="display:inline-flex;align-items:center;gap:.5rem;background:var(--accent-dim);border:1px solid rgba(63,182,139,0.3);border-radius:20px;padding:.4rem 1rem;font-size:.8rem;color:var(--accent);font-weight:500;margin-bottom:2rem">
+          ✨ Plateforme clinique nouvelle génération
+        </div>
+        
+        <h1 style="font-family:'Fraunces',serif;font-size:3.2rem;font-weight:600;line-height:1.15;margin-bottom:1.25rem;max-width:700px">
+          La santé naturelle.<br>
+          <span style="color:var(--accent)">Enfin à la hauteur<br>de votre expertise.</span>
+        </h1>
+        
+        <p style="font-size:1.05rem;color:var(--text2);max-width:560px;line-height:1.7;margin-bottom:2.5rem">
+          Logiciel professionnel tout-en-un pour naturopathes, nutritionnistes et thérapeutes. Gérez vos patients, vos protocoles, votre cabinet — avec l'IA à vos côtés.
+        </p>
+
+        <div style="display:flex;gap:1rem;margin-bottom:3rem">
+          <button onclick="renderAuth('register')" class="btn btn-primary btn-lg" style="font-size:1rem;padding:1rem 2rem;border-radius:12px">
+            Accéder à Naturia →
+          </button>
+          <button onclick="renderAuth('login')" class="btn btn-secondary btn-lg" style="font-size:1rem;padding:1rem 2rem;border-radius:12px">
+            Déjà un compte
+          </button>
+        </div>
+
+        <!-- STATS -->
+        <div style="display:flex;gap:3rem;margin-bottom:3rem">
+          ${[['315+','Suppléments PubMed'],['100%','RGPD conforme'],['24h/24','ARIA & Nova IA'],['∞','Patients & consultations']].map(([v,l])=>`
+            <div style="text-align:center">
+              <div style="font-family:'Fraunces',serif;font-size:1.8rem;font-weight:600;color:var(--accent)">${v}</div>
+              <div style="font-size:.78rem;color:var(--text2)">${l}</div>
+            </div>
+          `).join('')}
+        </div>
+
+        <!-- FEATURES -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;max-width:900px;width:100%">
+          ${[
+            ['👥','Gestion patients','Dossiers complets, historique, consultations'],
+            ['💊','315 suppléments','Base clinique PubMed avec niveau de preuve'],
+            ['🥗','Alimentation','Plans alimentaires personnalisés par patient'],
+            ['🤖','ARIA & Nova','Assistantes IA cabinet et support 24h/24'],
+          ].map(([icon,title,desc])=>`
+            <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;text-align:left">
+              <div style="font-size:1.5rem;margin-bottom:.6rem">${icon}</div>
+              <div style="font-size:.875rem;font-weight:600;margin-bottom:.3rem">${title}</div>
+              <div style="font-size:.78rem;color:var(--text2);line-height:1.5">${desc}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div style="padding:1.5rem 3rem;border-top:1px solid var(--border2);display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:.78rem;color:var(--text3)">© 2026 Naturia · RESURYA · Tous droits réservés</div>
+        <div style="font-size:.78rem;color:var(--text3)">🔒 Données hébergées en Europe · RGPD conforme</div>
+      </div>
+    </div>
+  `);
+}
+
+// ── BASE ALIMENTAIRE NATURIA ───────────────────────────────────────
+const ALIMENTS = [
+  // LAITAGES - VACHE
+  {id:'lv1',cat:'laitages',sous:'Vache',nom:'Lait entier de vache',cal:61,prot:3.2,lip:3.5,glu:4.7,benefices:'Riche en calcium, vitamine D, B12. Favorise la santé osseuse.',ci:'Intolérance au lactose, allergie aux protéines de lait de vache (APLV)',indice_ig:31,note:'Privilégier le lait cru ou bio'},
+  {id:'lv2',cat:'laitages',sous:'Vache',nom:'Lait demi-écrémé de vache',cal:46,prot:3.2,lip:1.6,glu:4.8,benefices:'Moins riche en graisses, maintient apport calcium et protéines.',ci:'Intolérance au lactose, APLV',indice_ig:30},
+  {id:'lv3',cat:'laitages',sous:'Vache',nom:'Yaourt nature entier',cal:61,prot:3.5,lip:3.5,glu:4.7,benefices:'Probiotiques naturels (Lactobacillus), améliore la digestion et le microbiote intestinal.',ci:'APLV sévère',indice_ig:36,note:'Préférer les yaourts avec ferments vivants'},
+  {id:'lv4',cat:'laitages',sous:'Vache',nom:'Yaourt grec',cal:97,prot:9,lip:5,glu:3.6,benefices:'Très riche en protéines, peu de lactose. Soutient la masse musculaire.',ci:'APLV',indice_ig:11,note:'Excellente source de protéines post-effort'},
+  {id:'lv5',cat:'laitages',sous:'Vache',nom:'Fromage blanc 0%',cal:45,prot:8,lip:0.2,glu:3.6,benefices:'Très riche en protéines, faible en graisses et lactose. Idéal régimes amincissants.',ci:'APLV',indice_ig:30},
+  {id:'lv6',cat:'laitages',sous:'Vache',nom:'Fromage blanc entier',cal:80,prot:7,lip:4,glu:3.7,benefices:'Bonne source de protéines et calcium. Digestion facilitée par fermentation.',ci:'APLV',indice_ig:30},
+  {id:'lv7',cat:'laitages',sous:'Vache',nom:'Beurre',cal:717,prot:0.5,lip:81,glu:0.6,benefices:'Riche en vitamines A, D, K2. Source d\'acide butyrique bénéfique pour le côlon.',ci:'Hypercholestérolémie sévère',note:'Préférer le beurre cru bio, à utiliser avec modération'},
+  {id:'lv8',cat:'laitages',sous:'Vache',nom:'Ghee (beurre clarifié)',cal:900,prot:0,lip:100,glu:0,benefices:'Sans lactose ni caséine. Très riche en vitamines A, D, K2, E. Stable à haute température.',ci:'Allergie aux protéines de lait (rare pour ghee)',note:'Toléré par la plupart des intolérants au lactose'},
+  {id:'lv9',cat:'laitages',sous:'Vache',nom:'Crème fraîche',cal:292,prot:2.5,lip:30,glu:3.4,benefices:'Source de vitamines A et D liposolubles.',ci:'Régime hypocalorique, hyperlipidémie'},
+  {id:'lv10',cat:'laitages',sous:'Vache',nom:'Emmental',cal:380,prot:28,lip:30,glu:0,benefices:'Très riche en calcium (1200mg/100g) et protéines. Sans lactose (affiné).',ci:'APLV',indice_ig:0,note:'Un des fromages les plus riches en calcium'},
+  {id:'lv11',cat:'laitages',sous:'Vache',nom:'Parmesan',cal:420,prot:36,lip:28,glu:0,benefices:'Concentré en protéines et calcium. Sans lactose. Riche en glutamate naturel.',ci:'APLV',indice_ig:0},
+  {id:'lv12',cat:'laitages',sous:'Vache',nom:'Mozzarella',cal:254,prot:18,lip:20,glu:2.2,benefices:'Bonne source de calcium et protéines. Moins riche en graisses que d\'autres fromages.',ci:'APLV'},
+  {id:'lv13',cat:'laitages',sous:'Vache',nom:'Camembert',cal:300,prot:19,lip:24,glu:0.5,benefices:'Riche en calcium, vitamines B2 et B12. Ferments bénéfiques pour le microbiote.',ci:'Femmes enceintes (risque listériose), APLV'},
+  {id:'lv14',cat:'laitages',sous:'Vache',nom:'Cottage cheese',cal:98,prot:11,lip:4.3,glu:3.4,benefices:'Riche en protéines, faible indice glycémique. Excellent pour la satiété.',ci:'APLV'},
+
+  // LAITAGES - BREBIS
+  {id:'lb1',cat:'laitages',sous:'Brebis',nom:'Lait de brebis',cal:105,prot:5.4,lip:7,glu:4.8,benefices:'Plus riche en protéines, calcium et acides gras que le lait de vache. Meilleure digestibilité.',ci:'Allergie aux protéines du lait de brebis (rare)',note:'Souvent mieux toléré que le lait de vache'},
+  {id:'lb2',cat:'laitages',sous:'Brebis',nom:'Yaourt de brebis',cal:85,prot:4.5,lip:5,glu:5,benefices:'Probiotiques naturels. Plus riche en graisses bénéfiques (CLA). Meilleure digestibilité.',ci:'Allergie aux protéines de brebis',note:'Excellent pour les personnes sensibles au lait de vache'},
+  {id:'lb3',cat:'laitages',sous:'Brebis',nom:'Feta',cal:264,prot:14,lip:21,glu:4,benefices:'Riche en calcium et phosphore. Source de probiotiques. Teneur modérée en sel.',ci:'Régime sans sel strict, APLV brebis',note:'Fromage traditionnel grec, DOP'},
+  {id:'lb4',cat:'laitages',sous:'Brebis',nom:'Roquefort',cal:369,prot:21,lip:31,glu:2,benefices:'Fromage à moisissures nobles (Penicillium roqueforti). Riche en calcium et protéines.',ci:'Femmes enceintes, immunodéprimés, régime sans sel',note:'Un des fromages les plus riches en sel'},
+  {id:'lb5',cat:'laitages',sous:'Brebis',nom:'Manchego',cal:395,prot:25,lip:32,glu:0.5,benefices:'Fromage espagnol affiné, riche en calcium et protéines. Sans lactose (affiné).',ci:'APLV brebis',note:'Goût prononcé, excellente source de calcium'},
+  {id:'lb6',cat:'laitages',sous:'Brebis',nom:'Pécorino',cal:387,prot:25,lip:31,glu:0,benefices:'Très riche en calcium et protéines. Sans lactose. Riche en acides aminés essentiels.',ci:'APLV brebis, régime sans sel',note:'Fromage italien traditionnel, excellent affiné'},
+  {id:'lb7',cat:'laitages',sous:'Brebis',nom:'Ricotta de brebis',cal:174,prot:11,lip:13,glu:3,benefices:'Riche en protéines et calcium. Légère, facile à digérer. Source de lactosérum.',ci:'APLV brebis'},
+  {id:'lb8',cat:'laitages',sous:'Brebis',nom:'Fromage frais de brebis',cal:120,prot:8,lip:9,glu:3,benefices:'Doux, riche en protéines et calcium. Meilleure digestibilité que le fromage de vache.',ci:'APLV brebis'},
+
+  // LAITAGES - CHÈVRE
+  {id:'lc1',cat:'laitages',sous:'Chèvre',nom:'Lait de chèvre',cal:69,prot:3.6,lip:4.1,glu:4.5,benefices:'Structure des protéines différente du lait de vache, souvent mieux toléré. Riche en calcium.',ci:'Allergie aux protéines de lait de chèvre',note:'Alternative au lait de vache pour les personnes intolérantes'},
+  {id:'lc2',cat:'laitages',sous:'Chèvre',nom:'Yaourt de chèvre',cal:75,prot:4,lip:4.5,glu:4.3,benefices:'Probiotiques naturels. Meilleure digestibilité que le yaourt de vache. Moins allergisant.',ci:'Allergie aux protéines de chèvre'},
+  {id:'lc3',cat:'laitages',sous:'Chèvre',nom:'Fromage de chèvre frais (Chèvre)',cal:230,prot:14,lip:19,glu:1,benefices:'Riche en calcium, phosphore et protéines. Acides gras à chaîne moyenne (MCT), digestibilité supérieure.',ci:'Allergie aux protéines de chèvre',note:'Le fromage de chèvre frais est l\'un des plus digestibles'},
+  {id:'lc4',cat:'laitages',sous:'Chèvre',nom:'Bûche de chèvre',cal:280,prot:17,lip:23,glu:1,benefices:'Riche en calcium et protéines. Contient des acides gras MCT bénéfiques pour l\'énergie.',ci:'Allergie aux protéines de chèvre'},
+  {id:'lc5',cat:'laitages',sous:'Chèvre',nom:'Chabichou',cal:320,prot:19,lip:26,glu:0.5,benefices:'Fromage affiné, riche en calcium. Sans lactose (affiné). AOC français.',ci:'Allergie aux protéines de chèvre'},
+  {id:'lc6',cat:'laitages',sous:'Chèvre',nom:'Sainte-Maure de Touraine',cal:290,prot:18,lip:24,glu:0.5,benefices:'AOC, riche en calcium et protéines. Ferments naturels bénéfiques pour le microbiote.',ci:'Femmes enceintes (si au lait cru), allergie chèvre'},
+  {id:'lc7',cat:'laitages',sous:'Chèvre',nom:'Fromage blanc de chèvre',cal:70,prot:7,lip:3.5,glu:3.8,benefices:'Léger, riche en protéines et calcium. Très bonne digestibilité. Faible en lactose.',ci:'Allergie aux protéines de chèvre'},
+  {id:'lc8',cat:'laitages',sous:'Chèvre',nom:'Kéfir de chèvre',cal:65,prot:3.5,lip:3.8,glu:4.5,benefices:'Très riche en probiotiques (30+ souches). Améliore le microbiote intestinal. Renforce l\'immunité.',ci:'Allergie aux protéines de chèvre',note:'L\'un des aliments les plus riches en probiotiques naturels'},
+
+  // PROTÉINES ANIMALES
+  {id:'pa1',cat:'proteines',sous:'Viandes',nom:'Bœuf (steak)',cal:250,prot:26,lip:16,glu:0,benefices:'Riche en fer héminique, zinc, B12. Excellente source de protéines complètes.',ci:'Goutte, insuffisance rénale sévère'},
+  {id:'pa2',cat:'proteines',sous:'Volaille',nom:'Poulet (blanc)',cal:165,prot:31,lip:3.6,glu:0,benefices:'Très riche en protéines, faible en graisses. Riche en B3, B6, phosphore.',ci:'Allergie aux volailles (rare)'},
+  {id:'pa3',cat:'proteines',sous:'Poissons',nom:'Saumon sauvage',cal:208,prot:20,lip:13,glu:0,benefices:'Très riche en oméga-3 EPA+DHA. Vitamine D, B12, sélénium. Anti-inflammatoire puissant.',ci:'Allergie aux poissons',note:'Privilégier le saumon sauvage au saumon d\'élevage'},
+  {id:'pa4',cat:'proteines',sous:'Poissons',nom:'Sardines (entières)',cal:208,prot:24,lip:11,glu:0,benefices:'Exceptionnellement riche en oméga-3, calcium (avec arêtes), vitamine D et B12.',ci:'Allergie aux poissons, hyperuricémie'},
+  {id:'pa5',cat:'proteines',sous:'Œufs',nom:'Œuf entier',cal:155,prot:13,lip:11,glu:1.1,benefices:'Protéine de référence (score PDCAAS=1). Riche en choline, lutéine, vitamines A, D, B12.',ci:'Allergie aux œufs',note:'2-3 œufs/jour sans risque cardiovasculaire chez la personne saine'},
+
+  // LÉGUMES
+  {id:'le1',cat:'legumes',sous:'Crucifères',nom:'Brocoli',cal:34,prot:2.8,lip:0.4,glu:6.6,benefices:'Riche en sulforaphane (anticancer), vitamine C, K, folates. Détoxification hépatique.',ci:'Hypothyroïdie (goitrogènes si cru en excès)',note:'Cuire à la vapeur pour préserver les nutriments'},
+  {id:'le2',cat:'legumes',sous:'Feuilles',nom:'Épinards',cal:23,prot:2.9,lip:0.4,glu:3.6,benefices:'Riche en fer, magnésium, folates, vitamines K, A, C. Antioxydants (lutéine, zéaxanthine).',ci:'Calculs rénaux oxaliques, anticoagulants (vitamine K)'},
+  {id:'le3',cat:'legumes',sous:'Racines',nom:'Betterave',cal:43,prot:1.6,lip:0.2,glu:9.6,benefices:'Riche en nitrates (améliore performances sportives), folates, fer. Détox hépatique.',ci:'Diabète (IG modéré cuite),calculs rénaux'},
+
+  // FRUITS
+  {id:'fr1',cat:'fruits',sous:'Baies',nom:'Myrtilles',cal:57,prot:0.7,lip:0.3,glu:14,benefices:'Champion des antioxydants (anthocyanines). Améliore la mémoire, protège la vision.',ci:'Anticoagulants (à surveiller)'},
+  {id:'fr2',cat:'fruits',sous:'Agrumes',nom:'Citron',cal:29,prot:1.1,lip:0.3,glu:9,benefices:'Très riche en vitamine C, flavonoïdes. Alcalinisant, détoxifiant, antimicrobien.',ci:'Reflux gastrique, aphtes'},
+  {id:'fr3',cat:'fruits',sous:'Tropicaux',nom:'Avocat',cal:160,prot:2,lip:15,glu:8.5,benefices:'Riche en acides gras mono-insaturés, vitamine E, K, folates, potassium. Anti-inflammatoire.',ci:'Allergie latex-fruits (rare)'},
+
+  // LÉGUMINEUSES
+  {id:'lg1',cat:'legumineuses',sous:'Légumineuses',nom:'Lentilles vertes',cal:116,prot:9,lip:0.4,glu:20,benefices:'Riche en protéines végétales, fer, folates, fibres. IG bas. Prébiotiques.',ci:'Syndrome intestin irritable (FODMAP)',note:'Trempage 8h réduit les anti-nutriments'},
+  {id:'lg2',cat:'legumineuses',sous:'Légumineuses',nom:'Pois chiches',cal:164,prot:8.9,lip:2.6,glu:27,benefices:'Riche en protéines, fibres, folates, fer. Soutient la glycémie. Prébiotiques.',ci:'Syndrome intestin irritable (FODMAP)'},
+
+  // CÉRÉALES
+  {id:'ce1',cat:'cereales',sous:'Céréales complètes',nom:'Quinoa',cal:120,prot:4.4,lip:1.9,glu:21,benefices:'Seule pseudo-céréale avec tous les acides aminés essentiels. Sans gluten. Riche en magnésium.',ci:'Aucune connue',note:'Rincer avant cuisson pour éliminer les saponines'},
+  {id:'ce2',cat:'cereales',sous:'Céréales complètes',nom:'Avoine',cal:389,prot:17,lip:7,glu:66,benefices:'Riche en bêta-glucanes (réduit cholestérol). IG modéré. Riche en fibres solubles.',ci:'Maladie cœliaque (contamination croisée gluten)'},
+
+  // OLÉAGINEUX
+  {id:'ol1',cat:'oleagineux',sous:'Noix',nom:'Noix',cal:654,prot:15,lip:65,glu:14,benefices:'Champion des oméga-3 végétaux (ALA). Riche en polyphénols, vitamine E, magnésium.',ci:'Allergie aux noix'},
+  {id:'ol2',cat:'oleagineux',sous:'Graines',nom:'Graines de chia',cal:486,prot:17,lip:31,glu:42,benefices:'Riche en oméga-3 ALA, fibres, calcium, magnésium. Effet coupe-faim.',ci:'Anticoagulants (oméga-3)'},
+  {id:'ol3',cat:'oleagineux',sous:'Noix',nom:'Amandes',cal:579,prot:21,lip:50,glu:22,benefices:'Très riche en vitamine E, magnésium, calcium. Réduit le cholestérol LDL.',ci:'Allergie aux noix'},
+
+  // HUILES
+  {id:'hu1',cat:'huiles',sous:'Huiles végétales',nom:'Huile d\'olive extra vierge',cal:884,prot:0,lip:100,glu:0,benefices:'Riche en oméga-9, polyphénols (oléocanthal anti-inflammatoire). Protège le cœur.',ci:'Aucune aux doses alimentaires',note:'À utiliser crue ou cuisson douce (<180°C)'},
+  {id:'hu2',cat:'huiles',sous:'Huiles végétales',nom:'Huile de coco',cal:862,prot:0,lip:100,glu:0,benefices:'Riche en acides gras MCT (énergie rapide, cétones). Stable à haute température.',ci:'Hypercholestérolémie (acides gras saturés)'},
+];
+
+// ── MODULE ALIMENTATION ───────────────────────────────────────────
+let _alimSearch = '';
+let _alimCat = 'tous';
+let _alimSous = 'tous';
+
+const ALIM_CATS = {
+  tous:'Tous',laitages:'🥛 Laitages',proteines:'🥩 Protéines',legumes:'🥦 Légumes',
+  fruits:'🍎 Fruits',legumineuses:'🫘 Légumineuses',cereales:'🌾 Céréales',
+  oleagineux:'🥜 Oléagineux',huiles:'🫙 Huiles'
+};
+
+function renderAlimentation(el) {
+  const filtered = ALIMENTS.filter(a => {
+    const ms = !_alimSearch || `${a.nom} ${a.sous||''} ${a.benefices}`.toLowerCase().includes(_alimSearch.toLowerCase());
+    const mc = _alimCat==='tous' || a.cat===_alimCat;
+    const ms2 = _alimSous==='tous' || a.sous===_alimSous;
+    return ms && mc && ms2;
+  });
+
+  // Sous-catégories disponibles
+  const sousCats = ['tous',...new Set(ALIMENTS.filter(a=>_alimCat==='tous'||a.cat===_alimCat).map(a=>a.sous).filter(Boolean))];
+
+  html(el, `
+    <div class="page-header">
+      <div>
+        <div class="page-title">Alimentation</div>
+        <div class="page-sub">${ALIMENTS.length} aliments · Valeurs nutritionnelles & bénéfices cliniques</div>
+      </div>
+      <button class="btn btn-primary" onclick="openPlanAlimentaire()">＋ Plan alimentaire</button>
+    </div>
+
+    <div style="display:flex;gap:.75rem;margin-bottom:1rem">
+      <div class="search-wrap" style="max-width:380px">
+        <span class="search-icon">🔍</span>
+        <input class="form-input" placeholder="Rechercher un aliment…" value="${_alimSearch}"
+          oninput="_alimSearch=this.value;renderView($('main-content'))">
+      </div>
+    </div>
+
+    <div class="filter-pills" style="margin-bottom:.5rem">
+      ${Object.entries(ALIM_CATS).map(([k,v])=>`
+        <span class="pill ${_alimCat===k?'active':''}" onclick="_alimCat='${k}';_alimSous='tous';renderView($('main-content'))">${v}</span>
+      `).join('')}
+    </div>
+
+    ${sousCats.length>2?`
+    <div class="filter-pills" style="margin-bottom:1rem">
+      ${sousCats.map(s=>`
+        <span class="pill ${_alimSous===s?'active':''}" style="font-size:.72rem" onclick="_alimSous='${s}';renderView($('main-content'))">${s==='tous'?'Toutes catégories':s}</span>
+      `).join('')}
+    </div>`:'<div style="margin-bottom:1rem"></div>'}
+
+    <div style="font-size:.8rem;color:var(--text2);margin-bottom:1rem">${filtered.length} aliment${filtered.length>1?'s':''}</div>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Aliment</th><th>Catégorie</th>
+            <th style="text-align:center">Cal/100g</th>
+            <th style="text-align:center">Prot.</th>
+            <th style="text-align:center">Lip.</th>
+            <th style="text-align:center">Glu.</th>
+            <th>Bénéfices</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filtered.map(a=>`
+            <tr style="cursor:pointer" onclick="showAliment('${a.id}')">
+              <td><div style="font-weight:500">${a.nom}</div></td>
+              <td><span class="badge badge-gray" style="font-size:.7rem">${a.sous||a.cat}</span></td>
+              <td style="text-align:center;font-size:.85rem">${a.cal}</td>
+              <td style="text-align:center;font-size:.85rem;color:var(--info)">${a.prot}g</td>
+              <td style="text-align:center;font-size:.85rem;color:var(--warning)">${a.lip}g</td>
+              <td style="text-align:center;font-size:.85rem;color:var(--accent)">${a.glu}g</td>
+              <td style="font-size:.78rem;color:var(--text2);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.benefices}</td>
+              <td><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();showAliment('${a.id}')">Détail</button></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `);
+}
+
+function showAliment(id) {
+  const a = ALIMENTS.find(x=>x.id===id);
+  if(!a) return;
+  modal(`
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">${a.nom}</div>
+        <div style="font-size:.8rem;color:var(--text2);margin-top:.2rem">${a.cat} · ${a.sous||''}</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Valeurs nutritionnelles -->
+      <div class="card-title">📊 Valeurs nutritionnelles (pour 100g)</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1.5rem">
+        ${[['🔥 Calories',a.cal,'kcal','var(--text)'],['💪 Protéines',a.prot,'g','var(--info)'],['🧈 Lipides',a.lip,'g','var(--warning)'],['🌾 Glucides',a.glu,'g','var(--accent)']].map(([label,val,unit,color])=>`
+          <div style="background:var(--bg3);border-radius:10px;padding:1rem;text-align:center">
+            <div style="font-size:.78rem;color:var(--text2);margin-bottom:.3rem">${label}</div>
+            <div style="font-family:'Fraunces',serif;font-size:1.6rem;font-weight:600;color:${color}">${val}</div>
+            <div style="font-size:.72rem;color:var(--text3)">${unit}</div>
+          </div>
+        `).join('')}
+      </div>
+      ${a.indice_ig!==undefined?`
+        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem;padding:.75rem;background:var(--bg3);border-radius:8px">
+          <div style="font-size:.85rem;font-weight:500">Indice glycémique :</div>
+          <span class="badge ${a.indice_ig<55?'badge-green':a.indice_ig<70?'badge-yellow':'badge-red'}">${a.indice_ig} — ${a.indice_ig<55?'Bas (favorable)':a.indice_ig<70?'Modéré':'Élevé'}</span>
+        </div>
+      `:''}
+      <div class="grid-2">
+        <div>
+          <div class="card-title">✅ Bénéfices cliniques</div>
+          <p style="font-size:.875rem;line-height:1.7;color:var(--text)">${a.benefices}</p>
+          ${a.note?`<div style="margin-top:.75rem;padding:.75rem;background:rgba(63,182,139,0.08);border-radius:8px;border-left:3px solid var(--accent)"><div style="font-size:.78rem;color:var(--accent);font-weight:600;margin-bottom:.2rem">💡 Conseil clinique</div><div style="font-size:.82rem;color:var(--text2)">${a.note}</div></div>`:''}
+        </div>
+        <div>
+          <div class="card-title">⚠️ Contre-indications</div>
+          <p style="font-size:.875rem;line-height:1.7;color:var(--danger)">${a.ci||'Aucune connue aux doses alimentaires'}</p>
+        </div>
+      </div>
+    </div>
+  `, 'modal-lg');
+}
+
+// ── PLANS ALIMENTAIRES ────────────────────────────────────────────
+function openPlanAlimentaire() {
+  modal(`
+    <div class="modal-header">
+      <div class="modal-title">＋ Nouveau plan alimentaire</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="plan-alert"></div>
+      <div class="form-group"><label class="form-label">Patient</label>
+        <select class="form-input" id="plan-patient">
+          <option value="">Sélectionner un patient…</option>
+          ${STATE.patients.map(p=>`<option value="${p.id}">${p.prenom} ${p.nom}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Titre du plan</label>
+        <input class="form-input" id="plan-titre" placeholder="Ex: Plan anti-inflammatoire · Semaine 1">
+      </div>
+      <div class="form-group"><label class="form-label">Objectif</label>
+        <input class="form-input" id="plan-objectif" placeholder="Ex: Réduire l'inflammation, améliorer le microbiote…">
+      </div>
+      <hr class="divider">
+      <div class="card-title">🌅 Petit-déjeuner</div>
+      <textarea class="form-input" id="plan-pdj" style="min-height:80px" placeholder="Yaourt de brebis + myrtilles + graines de chia · 1 œuf à la coque · Thé vert…"></textarea>
+      <div class="card-title" style="margin-top:1rem">☀️ Déjeuner</div>
+      <textarea class="form-input" id="plan-dej" style="min-height:80px" placeholder="Saumon grillé + quinoa + brocoli vapeur · Huile d'olive + citron…"></textarea>
+      <div class="card-title" style="margin-top:1rem">🌙 Dîner</div>
+      <textarea class="form-input" id="plan-din" style="min-height:80px" placeholder="Soupe de lentilles + légumes racines · Fromage de chèvre frais…"></textarea>
+      <div class="card-title" style="margin-top:1rem">🍎 Collations</div>
+      <textarea class="form-input" id="plan-col" style="min-height:60px" placeholder="Poignée d'amandes + 1 pomme · Kéfir de chèvre…"></textarea>
+      <div class="form-group" style="margin-top:1rem"><label class="form-label">Notes & recommandations</label>
+        <textarea class="form-input" id="plan-notes" style="min-height:80px" placeholder="Éviter le gluten 3 semaines · Boire 1,5L d'eau · Manger lentement…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="savePlanAlimentaire()">Enregistrer le plan</button>
+    </div>
+  `, 'modal-lg');
+}
+
+async function savePlanAlimentaire() {
+  const alertEl = $('plan-alert');
+  const patientId = $('plan-patient')?.value;
+  const titre = $('plan-titre')?.value?.trim();
+  if(!patientId||!titre) { if(alertEl) alertEl.innerHTML='<div class="alert alert-error">Patient et titre requis</div>'; return; }
+
+  const plan = {
+    therapist_id: STATE.user.id,
+    patient_id: patientId,
+    titre,
+    objectif: $('plan-objectif')?.value?.trim(),
+    petit_dejeuner: $('plan-pdj')?.value?.trim(),
+    dejeuner: $('plan-dej')?.value?.trim(),
+    diner: $('plan-din')?.value?.trim(),
+    collations: $('plan-col')?.value?.trim(),
+    notes: $('plan-notes')?.value?.trim(),
+    type_consultation: 'Plan alimentaire',
+    protocole: [],
+    bilan: {score:0},
+    date_consultation: new Date().toISOString(),
+  };
+
+  try {
+    const {data,error} = await sb.from('consultations').insert([plan]).select().single();
+    if(error) throw error;
+    STATE.consultations.unshift(data);
+    toast('Plan alimentaire enregistré ✅');
+    closeModal();
+  } catch(e) {
+    if(alertEl) alertEl.innerHTML=`<div class="alert alert-error">${tradErr(e.message)}</div>`;
+  }
+}
 
 </script>
 </body>
