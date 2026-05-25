@@ -4111,9 +4111,8 @@ async function sendChat(mode) {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+OR_KEY,'HTTP-Referer':'https://chaizelouis.github.io','X-Title':'Naturia'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514', max_tokens:1200,
-        system:cfg.system||'Tu es un assistant bienveillant.',
-        messages:_chatMessages[mode].filter((_,i)=>i>0).map(m=>({role:m.role==='ai'?'assistant':'user',content:m.content}))
+        model:'meta-llama/llama-3.3-70b-instruct:free', max_tokens:1200,
+        messages:[{role:'system',content:cfg.system||'Tu es un assistant bienveillant.'}, ..._chatMessages[mode].filter((_,i)=>i>0).map(m=>({role:m.role==='ai'?'assistant':'user',content:m.content}))]
       })
     });
     const data=await resp.json();
