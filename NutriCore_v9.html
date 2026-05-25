@@ -3369,7 +3369,6 @@ function renderApp() {
     {id:'supplements',label:'Suppléments',icon:'💊'},
     {id:'consultations',label:'Consultations',icon:'📋'},
     {id:'agenda',label:'Agenda',icon:'📅'},
-    {id:'alimentation',label:'Alimentation',icon:'🥗'},
     {id:'nova',label:'Nova',icon:'⚙️'},
     {id:'aria',label:'ARIA',icon:'📁'},
     {id:'facturation',label:'Facturation',icon:'💳'},
@@ -3420,7 +3419,6 @@ function renderView(container) {
     case 'supplements': renderSupplements(container); break;
     case 'consultations': renderConsultations(container); break;
     case 'agenda': renderAgenda(container); break;
-    case 'alimentation': renderAlimentation(container); break;
     case 'nova': renderChat(container,'nova'); break;
     case 'aria': renderChat(container,'aria'); break;
     case 'facturation': renderFacturation(container); break;
@@ -3537,6 +3535,7 @@ function renderPatients(el) {
 function openPatientModal(id) {
   const p = id ? STATE.patients.find(x=>x.id===id) : null;
   const profils = ['general','sportif','femme_enceinte','seniorite','pediatrie','vegetarien','vegane'];
+  setTimeout(()=>initAlimConsult(),100);
   const overlay = modal(`
     <div class="modal-header">
       <div class="modal-title">${p?'Modifier le patient':'Nouveau patient'}</div>
@@ -3751,6 +3750,9 @@ function openConsultModal() {
   _checkedSymptomes = {};
   _protocole = [];
   _suppSearch = '';
+  _alimFreqs = {};
+  _comportements = [];
+  _regimes = [];
   const types = ['Bilan initial','Suivi mensuel','Suivi trimestriel','Urgence','Téléconsultation'];
   const profils = ['general','sportif','femme_enceinte','seniorite','pediatrie','vegetarien','vegane'];
 
@@ -3927,6 +3929,7 @@ async function saveConsult() {
     type_consultation: $('c-type')?.value||'Bilan initial',
     profil_patient: $('c-profil')?.value||'general',
     motif: $('c-motif')?.value?.trim(),
+    alimentation: {freqs:_alimFreqs, comportements:_comportements, regimes:_regimes},
     antecedents: $('c-antec')?.value?.trim(),
     medicaments: $('c-meds')?.value?.trim(),
     allergies: $('c-allerg')?.value?.trim(),
@@ -4560,6 +4563,106 @@ async function savePlanAlimentaire() {
   } catch(e) {
     if(alertEl) alertEl.innerHTML=`<div class="alert alert-error">${tradErr(e.message)}</div>`;
   }
+}
+
+
+const ALIM_CATEGORIES = [
+  {label:'🥩 Protéines animales', items:['Viande rouge (bœuf, agneau)','Viande blanche (poulet, dinde)','Porc / charcuterie','Œufs (entiers)','Abats (foie, rognons)']},
+  {label:'🐟 Poissons & fruits de mer', items:['Poisson gras (saumon, maquereau, sardine)','Poisson blanc (cabillaud, sole)','Fruits de mer (huîtres, moules, crevettes)','Thon en conserve','Anchois / hareng']},
+  {label:'🥦 Légumes', items:['Légumes verts à feuilles (épinards, roquette)','Brocoli / chou-fleur / choux','Carottes / betteraves / patates douces','Courgettes / aubergines / poivrons','Artichaut / fenouil / céleri','Ail / oignon / poireau']},
+  {label:'🍎 Fruits', items:['Fruits rouges (myrtilles, fraises, framboises)','Agrumes (orange, citron, pamplemousse)','Pomme / poire','Banane','Fruits exotiques (mangue, kiwi, ananas)','Avocat']},
+  {label:'🍚 Céréales & féculents', items:['Riz blanc','Riz complet / sauvage','Pâtes blanches','Pâtes complètes / légumineuses','Quinoa / sarrasin / millet','Pain blanc / baguette','Pain complet / au levain','Flocons d\'avoine']},
+  {label:'🫘 Légumineuses', items:['Lentilles (vertes, corail, beluga)','Pois chiches','Haricots rouges / noirs','Fèves / petits pois','Soja / edamame / tofu']},
+  {label:'🥜 Oléagineux & graines', items:['Amandes','Noix (cerneaux)','Noix de cajou','Graines de courge','Graines de lin / chia','Graines de sésame / tahini']},
+  {label:'🫒 Huiles & matières grasses', items:['Huile d\'olive vierge extra','Huile de coco','Huile de colza / lin','Beurre (animal)','Ghee (beurre clarifié)']},
+  {label:'🥛 Laitages — Vache', items:['Lait entier de vache','Lait demi-écrémé de vache','Yaourt nature entier (vache)','Yaourt grec','Fromage blanc 0%','Fromage blanc entier','Beurre de vache','Ghee (beurre clarifié)','Crème fraîche','Emmental','Parmesan','Mozzarella','Camembert','Cottage cheese']},
+  {label:'🐑 Laitages — Brebis', items:['Lait de brebis','Yaourt de brebis','Feta','Roquefort','Manchego','Pécorino','Ricotta de brebis','Fromage frais de brebis']},
+  {label:'🐐 Laitages — Chèvre', items:['Lait de chèvre','Yaourt de chèvre','Fromage de chèvre frais','Bûche de chèvre','Chabichou','Sainte-Maure de Touraine','Fromage blanc de chèvre','Kéfir de chèvre']},
+  {label:'🥂 Laitages fermentés', items:['Kéfir de lait (vache)','Kéfir de chèvre','Kéfir de brebis','Kombucha','Choucroute','Kimchi','Miso','Tempeh']},
+  {label:'☕ Boissons', items:['Café (≥ 2 tasses/j)','Thé noir / vert (≥ 2 tasses/j)','Alcool (vin, bière, spiritueux)','Sodas / jus industriels','Eau minérale (≥ 1,5 L/j)']},
+  {label:'🍫 Sucrés & transformés', items:['Sucre blanc / confiseries','Chocolat noir (≥ 70%)','Pâtisseries / viennoiseries','Plats industriels / fast-food','Sauces industrielles (ketchup, mayo)']},
+];
+
+const COMPORTEMENTS = [
+  'Petit-déjeuner sauté régulièrement','Déjeuner sauté ou avalé en 10 min',
+  'Grignotage entre les repas','Alimentation émotionnelle (stress → sucre)',
+  'Repas tardifs (après 20h)','Alimentation très répétitive / peu variée',
+  'Alimentation quasi-exclusivement industrielle','Repas rarement cuisinés maison',
+  'Mastication insuffisante (repas avalés vite)','Consommation excessive de sel',
+  'Hydratation insuffisante (< 1,5 L/j)','Régimes restrictifs fréquents',
+];
+
+const REGIMES = [
+  {label:'Végétarien (avec œufs/laitiers)', key:'vegetarien'},
+  {label:'Vegan strict (aucun produit animal)', key:'vegan'},
+  {label:'Paléo / carnivore', key:'paleo'},
+  {label:'Régime sans gluten', key:'sansgluten'},
+  {label:'Régime sans lactose', key:'sanslactose'},
+  {label:'Régime cétogène / low-carb', key:'keto'},
+  {label:'Jeûne intermittent (16:8 ou plus)', key:'ji'},
+  {label:'Régime hypocalorique strict', key:'hypo'},
+  {label:'Intolérance FODMAP', key:'fodmap'},
+  {label:'Régime méditerranéen', key:'med'},
+  {label:'Régime anti-inflammatoire', key:'antiinflam'},
+];
+
+let _alimFreqs = {};
+let _comportements = [];
+let _regimes = [];
+
+function initAlimConsult() {
+  // Grille alimentation
+  const grid = $('alim-consult-grid');
+  if(grid) {
+    grid.innerHTML = ALIM_CATEGORIES.map(cat=>`
+      <div class="card" style="padding:.75rem">
+        <div style="font-size:.72rem;font-weight:600;color:var(--accent);margin-bottom:.5rem;text-transform:uppercase">${cat.label}</div>
+        ${cat.items.map(item=>{
+          const key=item.replace(/[^a-zA-Z0-9]/g,'');
+          return `<div style="display:flex;justify-content:space-between;align-items:center;padding:.25rem 0;border-bottom:1px solid var(--border2)">
+            <span style="font-size:.78rem">${item}</span>
+            <div style="display:flex;align-items:center;gap:.4rem">
+              <button onclick="changeAlimF('${key}',-1)" style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;width:22px;height:22px;cursor:pointer;color:var(--text)">−</button>
+              <span id="alimf-${key}" style="font-size:.75rem;color:var(--text2);min-width:45px;text-align:center">${_alimFreqs[key]||0}×/sem</span>
+              <button onclick="changeAlimF('${key}',+1)" style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;width:22px;height:22px;cursor:pointer;color:var(--text)">+</button>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    `).join('');
+  }
+
+  // Comportements
+  const comp = $('comportements-consult');
+  if(comp) {
+    comp.innerHTML = COMPORTEMENTS.map((c,i)=>`
+      <span onclick="toggleComp(${i},this)" style="padding:.3rem .75rem;border-radius:20px;font-size:.78rem;cursor:pointer;border:1px solid var(--border);background:${_comportements.includes(i)?'var(--accent-dim)':'var(--bg3)'};color:${_comportements.includes(i)?'var(--accent)':'var(--text2)'}">${c}</span>
+    `).join('');
+  }
+
+  // Régimes
+  const reg = $('regimes-consult');
+  if(reg) {
+    reg.innerHTML = REGIMES.map(r=>`
+      <span onclick="toggleReg('${r.key}',this)" style="padding:.3rem .75rem;border-radius:20px;font-size:.78rem;cursor:pointer;border:1px solid var(--border);background:${_regimes.includes(r.key)?'var(--accent-dim)':'var(--bg3)'};color:${_regimes.includes(r.key)?'var(--accent)':'var(--text2)'}">${r.label}</span>
+    `).join('');
+  }
+}
+
+function changeAlimF(key, delta) {
+  _alimFreqs[key] = Math.max(0, Math.min(7, (_alimFreqs[key]||0)+delta));
+  const el = $('alimf-'+key);
+  if(el) el.textContent = _alimFreqs[key]+'×/sem';
+}
+
+function toggleComp(i, el) {
+  if(_comportements.includes(i)) { _comportements=_comportements.filter(x=>x!==i); el.style.background='var(--bg3)'; el.style.color='var(--text2)'; }
+  else { _comportements.push(i); el.style.background='var(--accent-dim)'; el.style.color='var(--accent)'; }
+}
+
+function toggleReg(key, el) {
+  if(_regimes.includes(key)) { _regimes=_regimes.filter(x=>x!==key); el.style.background='var(--bg3)'; el.style.color='var(--text2)'; }
+  else { _regimes.push(key); el.style.background='var(--accent-dim)'; el.style.color='var(--accent)'; }
 }
 
 </script>
