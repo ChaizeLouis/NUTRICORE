@@ -4200,20 +4200,6 @@ function sendSAV() {
 }
 
 // ── INIT ──────────────────────────────────────────────────────────
-async function init() {
-  const {data:{session}} = await sb.auth.getSession();
-  if(session) { await loadApp(session.user); }
-  else { renderSplash(); }
-
-  sb.auth.onAuthStateChange((_,session)=>{
-    if(!session) { STATE={user:null,therapist:null,patients:[],consultations:[],view:'dashboard'}; renderSplash(); }
-  });
-}
-
-init();
-
-
-
 // ── PAGE SPLASH ───────────────────────────────────────────────────
 function renderSplash() {
   html($('root'), `
@@ -4295,6 +4281,21 @@ function renderSplash() {
     </div>
   `);
 }
+
+
+async function init() {
+  const {data:{session}} = await sb.auth.getSession();
+  if(session) { await loadApp(session.user); }
+  else { renderSplash(); }
+
+  sb.auth.onAuthStateChange((_,session)=>{
+    if(!session) { STATE={user:null,therapist:null,patients:[],consultations:[],view:'dashboard'}; renderSplash(); }
+  });
+}
+
+init();
+
+
 
 // ── BASE ALIMENTAIRE NATURIA ───────────────────────────────────────
 const ALIMENTS = [
